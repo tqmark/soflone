@@ -52,7 +52,7 @@ def validate(source):
     ))
     lower.update(THUMBS)
     lower.update({
-        "C": "&kp SQT", "T": "&kp SEMI", "H": "&kp TAB", "E": "&kp BACKSPACE",
+        "C": "&kp SQT", "T": "&kp SEMI", "H": "&kp BACKSPACE", "E": "&kp BACKSPACE",
         "A": "&kp LC(A)", "X": "&lower_bslash_base 0 0", "G": "&kp BACKSPACE", "V": "&kp BSLH",
         "N": "&kp LEFT_BRACKET", "I": "&kp RIGHT_BRACKET", "K": "&kp GRAVE",
         "Z": "&tog LOWER", "esc": "&trans", "comma": "&mt LEFT_COMMAND DOT",

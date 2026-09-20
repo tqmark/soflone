@@ -66,7 +66,7 @@
         // Combos match key POSITIONS, not letters, so an unscoped combo also
         // fires on other layers. Everything benign is pinned to BASE: <0 1>
         // is 1+2 on Lower and BT0+BT1 on Raise; <12 13> is 7+8 on Lower.
-        // L+J has no combo; Backspace is Lower+E/G or Navigation/Media+O.
+        // L+J has no combo; Backspace is Lower+H/E/G or Navigation/Media+O.
         grave {
             bindings = <&kp GRAVE>;
             key-positions = <0 1>;
@@ -167,11 +167,11 @@
             // Left half:
             // | 1 | 2 | 3 | 4 | 5 | 6 |
             // | 7 | 8 | 9 | 0 | - | = |
-            // | ' | UNUSED | ; | TAB | BACKSPACE | CTRL+A |
+            // | ' | UNUSED | ; | BACKSPACE | BACKSPACE | CTRL+A |
             // Hold X to use temporarily, or hold X then tap Z to lock. Tap Z to leave.
-            // Hold X then tap E or G for Backspace; Y+O is still available.
+            // Hold X then tap H, E, or G for Backspace; Y+O is still available.
             // This is a Lower binding, not a combo. Raise X+G stays bootloader.
-            // Shift+Tab uses the Shift thumb plus H/Tab.
+            // Tab remains Base B+Y; add the Shift thumb for Shift+Tab.
             // | BACKSLASH: tap \\ / hold BASE | BACKSPACE | BACKSLASH | UNUSED | [ | ] | ` |
             // V makes backslash/pipe reachable while X is held. Slash is on
             // the Option thumb; period is on the Command thumb.
@@ -184,7 +184,7 @@
             bindings = <
 &kp NUMBER_1  &kp NUMBER_2   &kp NUMBER_3  &kp NUMBER_4   &kp N5            &kp NUMBER_6                                 &kp F6     &kp F7    &kp F8     &kp F9     &kp F10   &kp F11
 &kp N7        &kp N8         &kp N9        &kp N0         &kp MINUS         &kp EQUAL                                    &kp N6     &kp N7    &kp N8     &kp N9     &kp N0    &kp F12
-&kp SQT       &none          &kp SEMI      &kp TAB  &kp BACKSPACE     &kp LC(A)                                    &kp CARET  &kp AMPS  &kp ASTRK  &kp LPAR   &kp RPAR  &kp PIPE
+&kp SQT       &none          &kp SEMI      &kp BACKSPACE  &kp BACKSPACE     &kp LC(A)                                    &kp CARET  &kp AMPS  &kp ASTRK  &kp LPAR   &kp RPAR  &kp PIPE
 &lower_bslash_base 0 0  &kp BACKSPACE  &kp BSLH  &none        &kp LEFT_BRACKET  &kp RIGHT_BRACKET  &kp GRAVE    &trans  &kp LBKT   &kp RBKT  &kp SEMI   &kp COLON  &kp BSLH  &trans
                              &tog LOWER    &mt LEFT_ALT SLASH  &trans       &mt LEFT_COMMAND DOT  &mt LEFT_SHIFT ENTER  &trans  &trans     &trans    &trans     &trans
             >;
