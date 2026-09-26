@@ -18,6 +18,6 @@ jobs:
   build:
     needs: validate
     # Kept in step with config/west.yml. The reusable workflow chooses the
-    # Docker image, so a ZMK revision on Zephyr 3.5 must be built by a
+    # Docker image, so a ZMK revision on Zephyr 4.1 must be built by a
     # workflow from the same era.
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@abb64ba316c29caddc49727ca2cac2f0ed5970c7
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@9ebbeff0a8b69a42f14aec022cdf16c7a107b9e0

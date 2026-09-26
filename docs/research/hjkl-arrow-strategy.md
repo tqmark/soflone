@@ -25,7 +25,7 @@ Use two navigation paths:
 1. For repeated Vim-style movement, hold Base `K`, tap `Z`, release `K`, then use `H/J/K/L`. Tap `Z` to return to Base.
 2. For quick movement while `K` remains held, keep the current `Q/P/F/M` arrows. They remain Left/Down/Up/Right and avoid the impossible `K`-while-holding-`K` case.
 
-This works because ZMK resolves a position from the highest active layer; after Raise is locked and the original Base `K` is released, pressing physical `K` uses Raise's `Up` binding rather than Base's `K`/Raise layer-tap. [ZMK's layer model](https://zmk.dev/docs/keymaps#layers) defines this binding precedence. The current pinned ZMK revision also documents that `&tog` locks an already momentarily active layer so releasing its `&mo`/layer-tap activator does not turn it off; a later `&tog` turns it off. [Official layer-locking documentation at the pinned revision](https://github.com/zmkfirmware/zmk/blob/abb64ba316c29caddc49727ca2cac2f0ed5970c7/docs/docs/keymaps/behaviors/layers.md#layer-locking).
+This works because ZMK resolves a position from the highest active layer; after Raise is locked and the original Base `K` is released, pressing physical `K` uses Raise's `Up` binding rather than Base's `K`/Raise layer-tap. [ZMK's layer model](https://zmk.dev/docs/keymaps#layers) defines this binding precedence. The current pinned ZMK revision also documents that `&tog` locks an already momentarily active layer so releasing its `&mo`/layer-tap activator does not turn it off; a later `&tog` turns it off. [Official layer-locking documentation at the pinned revision](https://github.com/zmkfirmware/zmk/blob/9ebbeff0a8b69a42f14aec022cdf16c7a107b9e0/docs/docs/keymaps/behaviors/layers.md#layer-locking).
 
 ### Exact impact on the saved Raise layer
 

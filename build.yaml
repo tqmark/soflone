@@ -5,13 +5,13 @@
 # pass flags to the build command, `snippet` to add a Zephyr snippet, and
 # `artifact-name` to assign a name to distinguish build outputs from each other:
 #
-# board: [ "nice_nano_v2" ]
+# board: [ "nice_nano//zmk" ]
 # shield: [ "corne_left", "corne_right" ]
 # include:
 #   - board: bdn9_rev2
-#   - board: nice_nano_v2
+#   - board: nice_nano//zmk
 #     shield: reviung41
-#   - board: nice_nano_v2
+#   - board: nice_nano//zmk
 #     shield: corne_left
 #     snippet: studio-rpc-usb-uart
 #     cmake-args: -DCONFIG_ZMK_STUDIO=y
@@ -20,13 +20,13 @@
 ---
 include:
   # New Sofle (serial ...33F97): the name comes from config/sofle.conf.
-  - board: nice_nano_v2
+  - board: nice_nano//zmk
     shield: sofle_left
   # Old Sofle (serial ...2707E): identical firmware, but it advertises
   # "darksofle" over Bluetooth so the two can be told apart when pairing. Only
   # the Bluetooth name changes: USB and the device model stay SofleL-FlatMT.
   # Karabiner matches the USB IDs, not either name.
-  - board: nice_nano_v2
+  - board: nice_nano//zmk
     shield: sofle_left
     cmake-args: -DCONFIG_BT_DEVICE_NAME=\"darksofle\"
     artifact-name: darksofle

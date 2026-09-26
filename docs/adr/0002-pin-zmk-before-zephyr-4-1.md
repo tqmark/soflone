@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by 0003
 ---
 
 # Pin ZMK after layer locking but before Zephyr 4.1

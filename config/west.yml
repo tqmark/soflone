@@ -7,16 +7,14 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
-      # Bumped from 4ec69cb for layer locking (ZMK 5138c6f, 2025-11-14): &tog
-      # now marks a layer locked, so &mo/&lt release no longer tears it back
-      # down. That is what makes "hold X, tap Z" lock Lower.
-      #
-      # Deliberately NOT main. abb64ba is the last commit before ZMK moved to
-      # Zephyr 4.1 and Hardware Model V2 (c06fa48, 2025-12-10), which renames
-      # the board from nice_nano_v2 to nice_nano//zmk and drags in eleven
-      # months of unrelated change. This pin is the smallest step that gets
-      # locking: still Zephyr 3.5, still the same board and shield.
-      revision: abb64ba316c29caddc49727ca2cac2f0ed5970c7
+      # ZMK main as of 2026-09-26 (9ebbeff): Zephyr 4.1 and Hardware Model V2
+      # (c06fa48, 2025-12-10), so the board is nice_nano//zmk, not nice_nano_v2.
+      # No release carries Zephyr 4.1 yet (latest is v0.3), so this is a commit
+      # pin, not main: an upgrade stays a deliberate step. Layer locking (ZMK
+      # 5138c6f, the reason for the previous abb64ba pin) is included; &tog
+      # still marks a layer locked, which is what makes "hold X, tap Z" lock
+      # Lower. Keep .github/workflows/build.yml on the same commit.
+      revision: 9ebbeff0a8b69a42f14aec022cdf16c7a107b9e0
       import: app/west.yml
   self:
     path: config

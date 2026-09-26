@@ -17,10 +17,10 @@ This is the durable record of the decisions made while adapting the Sofle and th
 ## Hardware and build source of truth
 
 - Keyboard: left half of a Sofle
-- Controller: `nice_nano_v2`
+- Controller: nice!nano v2, built as `nice_nano//zmk` (named `nice_nano_v2` before the Zephyr 4.1 upgrade)
 - Firmware: ZMK
 - Shield: `sofle_left`
-- Saved ZMK revision: `abb64ba316c29caddc49727ca2cac2f0ed5970c7`
+- Saved ZMK revision: `9ebbeff0a8b69a42f14aec022cdf16c7a107b9e0` (Zephyr 4.1, saved on branch `zmk-zephyr-4.1`, not flashed). Both keyboards were built on `abb64ba316c29caddc49727ca2cac2f0ed5970c7` (Zephyr 3.5).
 - Build matrix: left shield only; the earlier right-shield build was removed
 - OLED: enabled
 - RGB and encoders: disabled
@@ -36,7 +36,7 @@ The full Sofle matrix still appears in `config/sofle.keymap`; the right-side ent
 
 - The OLED blanks after about 30 seconds without activity and turns back on when typing resumes.
 - Deep sleep is enabled after 15 minutes of inactivity on battery (`CONFIG_ZMK_SLEEP=y`, `CONFIG_ZMK_IDLE_SLEEP_TIMEOUT=900000`).
-- The pinned ZMK activity handler prevents deep sleep while USB power is present, including USB charging while using Bluetooth.
+- ZMK's activity handler (unchanged by the Zephyr 4.1 upgrade) prevents deep sleep while USB power is present, including USB charging while using Bluetooth.
 - On battery, deep sleep disconnects Bluetooth; a matrix key press wakes the keyboard and it reconnects. The wake press may not be typed, and a reboot returns to Base. Saved Bluetooth pairings are retained.
 - These settings take effect separately on each keyboard after it is flashed. Real battery sleep/wake behavior still needs a physical test.
 
@@ -356,6 +356,14 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 - The user judged the single-tap modifier toggles too powerful to leave on one tap. Navigation/Media C and S became tap dances: a single tap emits nothing, a double tap within 300 ms flips Command or Shift. This is the first tap dance since the 2026-09-14 audit removed them all. It is admissible because the audit's failure needs a hold-tap nested in the dance: the dance creates the mod-tap only after it resolves, by which time the interrupting key has passed the hold-tap listener. These dances wrap `&none` and `&kt`, so no hold-tap is created and a single tap has nothing to leak. Both checks were narrowed from "no tap dances at all" to "no tap dance may wrap anything but `&none`/`&kt`, and it must start with `&none`", and were confirmed to reject a mod-tap, a hold-tap and a reordered dance.
 - Flashed to the old Sofle (`2707E`) as revision `a6ecdd8` from build [36214470304](https://github.com/tqmark/soflone/actions/runs/36214470304), by copying the UF2 to the bootloader volume. Both images were verified first: UF2 magic and final magic on every block, family `0xADA52840`, load address `0x26000`, and `darksofle` present once against `SofleL-FlatMT` twice, confirming the Bluetooth-only rename. macOS reported the keyboard back as `SofleL-FlatMT` on serial `7DF33F115102707E`. Bluetooth still lists the previously paired name until the keyboard is paired again.
 
+### 2026-09-26: upgrade ZMK to Zephyr 4.1
+
+- The user asked for the latest ZMK with the same setup. ZMK is pinned to main at `9ebbeff` (Zephyr v4.1.0+zmk-fixes, Hardware Model V2) instead of `abb64ba`, and the reusable build workflow moves to the same commit. No ZMK release carries Zephyr 4.1 yet. See [ADR 0003](adr/0003-pin-zmk-on-zephyr-4-1.md).
+- The board is renamed from `nice_nano_v2` to `nice_nano//zmk` (default revision 2.0.0, the same hardware). The `sofle_left` shield, keymap, `sofle.conf` options and every binding are unchanged. The unused, deprecated `label` was removed from `lower_bslash_base`.
+- A source diff between the two ZMK commits found no change to hold-tap, tap dance, combos, macros, sticky layer, key toggle, `&tog` layer locking, or the USB-powered sleep exception. `&bootloader` now enters the UF2 bootloader through Zephyr's retention boot mode on the `zmk` board variant, so Raise+D needs a physical test after flashing.
+- The default artifact is now named `sofle_left-nice_nano__zmk`; `darksofle` is unchanged.
+- Saved on a branch, not flashed. The old Sofle stays on `a6ecdd8` and the new Sofle on `b246979`, both on Zephyr 3.5, until the user flashes the upgrade.
+
 ## Decisions deliberately rejected or superseded
 
 - Reconnecting or depending on the right half: conflicts with the physical requirement.
@@ -370,7 +378,7 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 - Bootloader on L+J: too close to the well-trained Backspace chord and could unexpectedly remove HID service.
 - Bluetooth clear beside arrow and deletion keys: too destructive for an editing cluster.
 - Destructive combos of any kind: a Base combo's one-shot Raise turns a repeated chord into a Raise combo. Destructive actions are one-second holds instead.
-- ZMK main: forced an unrelated Zephyr/board-model migration and broke the established board name.
+- ZMK main (superseded 2026-09-26): once rejected because it forced the Zephyr/board-model migration. That migration is now done on purpose, pinned to one commit. Tracking `revision: main` itself remains rejected.
 - Global balanced modifier hold-taps: delayed held multi-modifier chords until another key was released.
 - Mod-taps nested inside tap dances: delayed the modifier until after the outer dance resolved and could lose fast chords. Tap dances around `&none`/`&kt` are permitted because they create no nested hold-tap and emit nothing on a single tap.
 - Five exposed Bluetooth profiles: only two are needed.
@@ -389,6 +397,7 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 10. **Browser brief**: native rules and the helper are installed, and both Sofles have the K+Y firmware bridge. The user confirmed the shortcut worked after correcting the current Karabiner app's System Events Automation permission. Full-brief mode and operation on another Mac remain separate tests.
 11. **Faster Navigation/Media (saved, not flashed)**: verify Y-initial words and fast Y rolls never trigger arrows, volume or Backspace (watch `you`/`your` at the start of a line), and that the 150 ms idle rule is not annoying when reaching for arrows right after typing. If it is, lower it rather than restoring the dwell.
 12. **Modifier toggles**: verify Cmd+click and Shift+click with the trackpad, that a single Y+C or Y+S does nothing, and that a forgotten toggle is noticed quickly.
+13. **Zephyr 4.1 firmware (saved, not flashed)**: after the first flash, run the full regression test. In particular check the Raise+D bootloader hold (it uses a new boot-mode mechanism), hold-tap timing, battery sleep and wake, and the OLED. Flash one keyboard first and keep the other on Zephyr 3.5 as a fallback.
 
 ## Flashing decision and recovery
 
