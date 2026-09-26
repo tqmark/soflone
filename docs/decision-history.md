@@ -20,9 +20,9 @@ This is the durable record of the decisions made while adapting the Sofle and th
 - Controller: nice!nano v2, built as `nice_nano//zmk` (named `nice_nano_v2` before the Zephyr 4.1 upgrade)
 - Shield: `sofle_left`
 - ZMK: pinned to `9ebbeff0a8b69a42f14aec022cdf16c7a107b9e0` (Zephyr 4.1, [ADR 0003](adr/0003-pin-zmk-on-zephyr-4-1.md)); the reusable build workflow uses the same commit
-- Build: one `sofle` artifact (`sofle.uf2`), left shield only, for both keyboards (only the old Sofle runs it so far; see “Saved versus flashed”)
+- Build: one `sofle` artifact (`sofle.uf2`), left shield only, flashed to both keyboards
 - Name: `SofleL-FlatMT` over USB and Bluetooth on both keyboards. Each keeps its own Bluetooth address and pairings. macOS shows the name recorded at pairing (or set in Bluetooth settings), so the old Sofle may still be listed as `darksofle`.
-- OLED: enabled. Saved firmware uses the repository's own status screen (`src/status_screen.c`, loaded through `zephyr/module.yml` and `CMakeLists.txt`). It keeps ZMK's layout and battery/output icons (Montserrat 16) and shows the layer name as plain UNSCII 8 text without ZMK's keyboard icon: `Default`, `Lower`, `Raise`, `Nav/media`.
+- OLED: enabled, with the repository's own status screen (`src/status_screen.c`, loaded through `zephyr/module.yml` and `CMakeLists.txt`). It keeps ZMK's layout and battery/output icons (Montserrat 16) and shows the layer name as plain UNSCII 8 text without ZMK's keyboard icon: `Default`, `Lower`, `Raise`, `Nav/media`.
 - RGB and encoders: disabled
 - Bluetooth profiles: only ZMK profiles 0 and 1 are exposed (previously labeled BT1/BT2)
 
@@ -45,10 +45,11 @@ What each keyboard runs, as last confirmed. Earlier flashes are in the chronolog
 | Keyboard | Serial | Firmware | ZMK | Confirmed | Bootloader gesture |
 |---|---|---|---|---|---|
 | Old Sofle | `7DF33F115102707E` | `e56630b` | Zephyr 4.1 | 2026-09-26 12:29 | Hold K for Raise, then hold D for one second (confirmed working) |
-| New Sofle | `277D64B1BE733F97` | `b246979` | Zephyr 3.5 | 2026-09-19 13:39 | Hold K for Raise, then press X+G together |
+| New Sofle | `277D64B1BE733F97` | `e56630b` | Zephyr 4.1 | 2026-09-26 12:47 (user report) | Hold K for Raise, then hold D for one second |
 
-- `e56630b` has the same keymap and OLED as `main`; later commits changed only documentation. `b246979` predates the hold-based recovery, the faster Navigation/Media, the modifier toggles and the OLED changes, and is kept as the Zephyr 3.5 fallback until the upgrade has been lived with.
-- To bring the new Sofle up to date, flash `sofle.uf2` from the latest `main` build, entering the bootloader with its X+G gesture that one last time.
+- Both keyboards run the same firmware. `e56630b` has the same keymap and OLED as `main`; later commits changed only documentation.
+- The new Sofle's flash is recorded on the user's report; it was not connected over USB when recorded, so its return was not seen by this Mac. The only artifact downloaded since the old Sofle's flash is that same `sofle.uf2`, so it is taken to be `e56630b`.
+- There is no Zephyr 3.5 fallback on either keyboard any more. To go back, flash an older build's UF2 after double-tapping reset.
 - Hardware fallback on either keyboard: double-tap the controller reset button.
 - Physical typing and comfort testing is separate from transfer verification.
 
@@ -363,8 +364,9 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 - Per-keyboard names were briefly `darksofle`/`lightsofle`. A byte comparison of the two images showed they differed only in the name string and the one-byte shift it causes. ZMK compiles the Bluetooth name into the firmware, so different names require different files. The user chose one file for both keyboards instead: a single `sofle` artifact, both named `SofleL-FlatMT`. This also replaces the automatic `sofle_left-nice_nano__zmk-zmk` file name.
 - The user found the OLED layer name too bold and wanted only its first letter capitalised. The layer name font changed from Montserrat 12 to UNSCII 8 (`CONFIG_ZMK_LV_FONT_DEFAULT_SMALL_UNSCII_8`), whose strokes are one pixel wide. The names are now `Default`, `Lower`, `Raise` and `Nav/media`. The top-row icons stay in Montserrat 16, because the built-in status screen draws them from that font and UNSCII has none of them. A bold or custom font would need a custom status screen and was not pursued.
 - The user then asked to remove the keyboard icon in front of the layer name. ZMK hard-codes it in its layer widget, and UNSCII 8 has no glyph for it, so it would have drawn as a placeholder box. The repository now provides its own status screen: the same layout and ZMK's own battery and output widgets, with a plain-text layer name. The settings the built-in screen used to switch on (icon widgets, mono theme, Montserrat 16 default font, 4096-byte LVGL pool) are restated in `config/sofle.conf`. This is the repository's first C code; a ZMK upgrade must check it still builds against the display API.
-- Flashed to the old Sofle (`7DF33F115102707E`) as `e56630b`, confirmed at 12:29 Asia/Ho_Chi_Minh. The user copied `sofle.uf2` from build [36220622974](https://github.com/tqmark/soflone/actions/runs/36220622974) onto the bootloader volume. Before flashing, the downloaded artifact matched the CI SHA-256 (`265f4aac…0555`), and the UF2 passed magic, sequence, family `0xADA52840` and load address `0x26000` checks. It contained the capitalised layer names and no keyboard-icon layer string. macOS reported `SofleL-FlatMT`, vendor `0x1d50`, with the same serial. The user confirmed the OLED icon is gone and that the Raise+D hold enters the bootloader on the new boot-mode mechanism. The new Sofle stays on `b246979` as the Zephyr 3.5 fallback.
+- Flashed to the old Sofle (`7DF33F115102707E`) as `e56630b`, confirmed at 12:29 Asia/Ho_Chi_Minh. The user copied `sofle.uf2` from build [36220622974](https://github.com/tqmark/soflone/actions/runs/36220622974) onto the bootloader volume. Before flashing, the downloaded artifact matched the CI SHA-256 (`265f4aac…0555`), and the UF2 passed magic, sequence, family `0xADA52840` and load address `0x26000` checks. It contained the capitalised layer names and no keyboard-icon layer string. macOS reported `SofleL-FlatMT`, vendor `0x1d50`, with the same serial. The user confirmed the OLED icon is gone and that the Raise+D hold enters the bootloader on the new boot-mode mechanism. The new Sofle stayed on `b246979` as the Zephyr 3.5 fallback for now.
 - The branch was then fast-forwarded into `main` (`f39c8b6`, build [36221133626](https://github.com/tqmark/soflone/actions/runs/36221133626) passed). The work was developed on a branch because the pin had previously been a deliberate constraint; nothing was flashed from the branch that `main` does not contain.
+- At about 12:47 Asia/Ho_Chi_Minh the user reported that both keyboards now run the latest firmware, i.e. the new Sofle (`277D64B1BE733F97`) was flashed from `b246979` to the same `sofle.uf2` (`e56630b`). It was not connected over USB at the time, so this record rests on the user's report. Both keyboards are now on Zephyr 4.1 with identical firmware; the X+G bootloader combo no longer exists anywhere.
 
 ## Decisions deliberately rejected or superseded
 
@@ -388,18 +390,18 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 ## Known issues and unresolved decisions
 
 1. **Space hold on the new Mac**: the earlier nested tap dance was removed and the direct Space/Shift mod-tap has been flashed on both keyboards. Physical comfort and normal-speed typing still need user testing. Hold Sofle Space, keep holding it, tap A, and expect `A`.
-2. **Firmware identity**: the old Sofle (`2707E`) is verified on `e56630b` (Zephyr 4.1); the new Sofle (`33F97`) is still on `b246979`. Physical typing tests remain separate from installation verification. Do not infer future installations merely from a successful CI build or the presence of a UF2 file.
+2. **Firmware identity**: the old Sofle (`2707E`) is verified on `e56630b` (Zephyr 4.1); the new Sofle (`33F97`) is on `e56630b` by the user's report. They run identical firmware. Physical typing tests remain separate from installation verification. Do not infer future installations merely from a successful CI build or the presence of a UF2 file.
 3. **Redesign ergonomics**: confirm pinky-held Y with H/J/K/L, P/F/M volume, and thumb-modified movement. Also test Lower Tab plus Shift, the Ctrl+A workflow, and the new X-then-G deletion gesture.
 4. **Arbitrary app switching**: Cmd+Tab is disabled, and named launchers do not select every running application. A dependable one-handed general switcher has not been chosen.
-5. **Deletion comfort**: Lower+E/G Backspace is flashed on both Sofles. Both X+E and X+G need comparative reach/repeated-deletion testing. Y+O is retained, without the 200 ms dwell on the old Sofle (the new Sofle still has the dwell); L+J stays removed and Raise has no dedicated Backspace.
+5. **Deletion comfort**: Lower+E/G Backspace is flashed on both Sofles. Both X+E and X+G need comparative reach/repeated-deletion testing. Y+O is retained, without the 200 ms dwell; L+J stays removed and Raise has no dedicated Backspace.
 6. **Combo accidents**: Q+P and B+Y need normal-speed typing tests for false activation. Verify L/J together now type letters instead of deleting.
 7. **USB wake repeat**: an older report said the first key after about 30 seconds over USB could repeat. Cause and current status are unknown.
-8. **OLED**: it was blank during setup and recovered after settings/power experiments. Raise+I exists as a safe power-on path; continued reliability is unconfirmed. On the old Sofle the custom status screen is confirmed to show the plain layer name; watch that the name follows layer changes and the icons update.
+8. **OLED**: it was blank during setup and recovered after settings/power experiments. Raise+I exists as a safe power-on path; continued reliability is unconfirmed. The custom status screen is confirmed on the old Sofle to show the plain layer name; watch that the name follows layer changes and the icons update.
 9. **Physical ergonomics**: finger assignments, reach, fatigue, accidental locks, missing spaces, unexpected capitals, and multi-modifier comfort need observation rather than assumption.
 10. **Browser brief**: native rules and the helper are installed, and both Sofles have the K+Y firmware bridge. The user confirmed the shortcut worked after correcting the current Karabiner app's System Events Automation permission. Full-brief mode and operation on another Mac remain separate tests.
-11. **Faster Navigation/Media (flashed to the old Sofle only)**: verify Y-initial words and fast Y rolls never trigger arrows, volume or Backspace (watch `you`/`your` at the start of a line), and that the 150 ms idle rule is not annoying when reaching for arrows right after typing. If it is, lower it rather than restoring the dwell.
-12. **Modifier toggles (old Sofle only)**: verify Cmd+click and Shift+click with the trackpad, that a single Y+C or Y+S does nothing, and that a forgotten toggle is noticed quickly.
-13. **Zephyr 4.1 firmware (old Sofle only)**: the OLED layer name without icon and the Raise+D bootloader hold are confirmed. Still run the full regression test, in particular hold-tap timing and battery sleep and wake. Once it has been lived with, flash the new Sofle from `main`; until then it is the Zephyr 3.5 fallback.
+11. **Faster Navigation/Media**: verify Y-initial words and fast Y rolls never trigger arrows, volume or Backspace (watch `you`/`your` at the start of a line), and that the 150 ms idle rule is not annoying when reaching for arrows right after typing. If it is, lower it rather than restoring the dwell.
+12. **Modifier toggles**: verify Cmd+click and Shift+click with the trackpad, that a single Y+C or Y+S does nothing, and that a forgotten toggle is noticed quickly.
+13. **Zephyr 4.1 firmware (both keyboards)**: the OLED layer name without icon and the Raise+D bootloader hold are confirmed on the old Sofle. Check the same two on the new Sofle, then run the full regression test, in particular hold-tap timing and battery sleep and wake. Neither keyboard is a Zephyr 3.5 fallback now.
 
 ## Flashing decision and recovery
 
