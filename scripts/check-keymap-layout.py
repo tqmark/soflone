@@ -77,7 +77,7 @@ def validate(source):
     nav_media.update({
         "P": "&kp C_VOL_DN", "F": "&kp C_VOL_UP", "M": "&kp C_MUTE",
         "H": "&kp LEFT", "J": "&kp DOWN", "K": "&kp UP", "L": "&kp RIGHT",
-        "O": "&kp BACKSPACE", "C": "&kt LEFT_COMMAND", "S": "&kt LEFT_SHIFT",
+        "O": "&kp BACKSPACE", "C": "&td_command", "S": "&td_shift",
     })
 
     for name, expected in zip(
@@ -139,7 +139,21 @@ def validate(source):
         require(re.search(r"tapping-term-ms\s*=\s*<1000>", body), f"{name}: hold must be one second")
         require(re.search(r"bindings\s*=\s*<" + hold + r">\s*,\s*<&none>", body),
                 f"{name}: tap must do nothing")
-    require("zmk,behavior-tap-dance" not in source, "Tap dances are intentionally disabled")
+    # Tap dances are allowed only where they cannot reproduce the 2026-09-14
+    # failure: one wrapped around a mod-tap resolves late and leaks the tap key.
+    # So every tap dance must wrap only &none/&kt, and must start with &none so
+    # a single tap emits nothing.
+    dances = re.findall(r'(\w+):\s*\w+\s*\{([^}]*compatible\s*=\s*"zmk,behavior-tap-dance"[^}]*)\}',
+                        source)
+    require(len(dances) == source.count('"zmk,behavior-tap-dance"'),
+            "Could not parse every tap dance")
+    for name, body in dances:
+        bindings = re.findall(r"&[\w]+", re.search(r"bindings\s*=\s*<([^;]*)>;", body).group(1))
+        require(bindings[0] == "&none", f"{name}: a single tap must emit nothing")
+        require(all(b in ("&none", "&kt") for b in bindings),
+                f"{name}: a tap dance may only wrap &none and &kt, never a hold-tap")
+        require(re.search(r"tapping-term-ms\s*=\s*<300>", body), f"{name}: timing changed")
+    require({n for n, _ in dances} == {"td_command", "td_shift"}, "Unexpected tap dances")
 
 
 if __name__ == "__main__":

@@ -138,13 +138,13 @@ Hold Y with the pinky and tap:
 P/F/M    Volume Down / Volume Up / Mute
 H/J/K/L  Left / Down / Up / Right
 O        Backspace
-C / S    Command / Shift toggle (tap again to release)
+C / S    double-tap within 300 ms: hold Command / Shift (double-tap to release)
 ```
 
 - This reuses the existing fourth layer; there is no fifth layer or new letter hold-tap. The internal `MEDIA` index and `ymedia` behavior remain unchanged; the OLED label is `nav/media`.
 - The user confirmed Y is a pinky key, leaving physical H/J/K/L available as arrows. Holding K cannot offer K/Up; Y avoids that physical conflict. O is index-finger Backspace, alongside Lower+E/G.
 - P/F/M keep the three volume actions together. L is now Right and J is Down. A is unused: there is no forward Delete on the active left half.
-- C and S are key toggles for Command and Shift, for Cmd+click, Shift+click and similar trackpad use with one hand. Tap once to hold the modifier, use the trackpad, tap again to release. This is firmware-only; macOS Sticky Keys stays off. The OLED does not show held modifiers, so a forgotten toggle shows up as modified typing: hold Y and tap C or S again.
+- C and S are double-tap key toggles for Command and Shift, for Cmd+click, Shift+click and similar trackpad use with one hand. Hold Y, tap C twice within 300 ms, use the trackpad, then double-tap again to release. A single tap emits nothing, so a stray Y+C cannot strand a modifier. This is firmware-only; macOS Sticky Keys stays off. Releasing Y between the two taps types an ordinary `c`/`s`. The OLED does not show held modifiers, so a forgotten toggle shows up as modified typing: nothing else clears it, because ZMK counts modifier presses and the Command thumb's own press/release leaves the count above zero.
 - Slash/Option, Escape/Control, comma/Command, and Space/Shift are direct mod-taps matching Base. Shift+arrows selects in supporting apps; Option or Command modifies movement according to the application. These are not Vim Visual-mode macros.
 - Y is a balanced hold-tap with three guards instead of a mandatory 200 ms dwell. Y pressed within 150 ms of another key is always `y` (mid-word rolls such as `days`). Navigation/Media engages only if the first key after Y is a Navigation/Media key or modifier thumb; most Y-initial words (`yes`, `yet`, `year`) continue on E/A/U/I, so they always type. And that key must be released while Y is still held, so a rolled Y+key stays two letters.
 - Known risk: O is a trigger for Backspace, so `you`/`your` at the start of a line after a pause sends Backspace if O is released while the pinky still holds Y. Mid-sentence `you` is protected by the 150 ms rule; an ordinary roll releases Y first. Holding Y alone for 200 ms still selects the layer.
@@ -348,6 +348,13 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 - Thumb-roll misfires under `hold-preferred` were tested by the user and occur only at very high speed, so the thumb mod-taps were left unchanged.
 - Not yet flashed. Both Sofles remain on `b246979`, whose bootloader is still Raise X+G.
 
+### 2026-09-26: flash the old Sofle, then require a double tap for the modifier toggles
+
+- The user flashed the `darksofle` artifact from build [36213670628](https://github.com/tqmark/soflone/actions/runs/36213670628) (revision `2fb9e4d`) to the old Sofle (`7DF33F115102707E`) by copying the UF2 to the bootloader volume, and reported it working. Before flashing, both UF2 files were verified: correct magic numbers, the `0xADA52840` family, load address `0x26000`, and the expected name in each image. This keyboard therefore runs the hold-based recovery, faster Navigation/Media, and Y+O Backspace. The new Sofle (`277D64B1BE733F97`) remains on `b246979`, whose bootloader is still Raise X+G. Physical typing tests remain separate from installation verification.
+- That build set `CONFIG_ZMK_KEYBOARD_NAME`, which feeds the USB product name, the Bluetooth name and the device model at once. The user wanted only the Bluetooth name changed, so `build.yaml` now overrides `CONFIG_BT_DEVICE_NAME` alone; build [36214036089](https://github.com/tqmark/soflone/actions/runs/36214036089) passed but is not flashed. macOS keeps the name recorded at pairing time, so the old Sofle still shows as its paired name until it is paired again.
+- The user judged the single-tap modifier toggles too powerful to leave on one tap. Navigation/Media C and S became tap dances: a single tap emits nothing, a double tap within 300 ms flips Command or Shift. This is the first tap dance since the 2026-09-14 audit removed them all. It is admissible because the audit's failure needs a hold-tap nested in the dance: the dance creates the mod-tap only after it resolves, by which time the interrupting key has passed the hold-tap listener. These dances wrap `&none` and `&kt`, so no hold-tap is created and a single tap has nothing to leak. Both checks were narrowed from "no tap dances at all" to "no tap dance may wrap anything but `&none`/`&kt`, and it must start with `&none`", and were confirmed to reject a mod-tap, a hold-tap and a reordered dance.
+- Not yet flashed.
+
 ## Decisions deliberately rejected or superseded
 
 - Reconnecting or depending on the right half: conflicts with the physical requirement.
@@ -364,7 +371,7 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 - Destructive combos of any kind: a Base combo's one-shot Raise turns a repeated chord into a Raise combo. Destructive actions are one-second holds instead.
 - ZMK main: forced an unrelated Zephyr/board-model migration and broke the established board name.
 - Global balanced modifier hold-taps: delayed held multi-modifier chords until another key was released.
-- Mod-taps nested inside tap dances: delayed the modifier until after the outer dance resolved and could lose fast chords.
+- Mod-taps nested inside tap dances: delayed the modifier until after the outer dance resolved and could lose fast chords. Tap dances around `&none`/`&kt` are permitted because they create no nested hold-tap and emit nothing on a single tap.
 - Five exposed Bluetooth profiles: only two are needed.
 
 ## Known issues and unresolved decisions
@@ -380,7 +387,7 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 9. **Physical ergonomics**: finger assignments, reach, fatigue, accidental locks, missing spaces, unexpected capitals, and multi-modifier comfort need observation rather than assumption.
 10. **Browser brief**: native rules and the helper are installed, and both Sofles have the K+Y firmware bridge. The user confirmed the shortcut worked after correcting the current Karabiner app's System Events Automation permission. Full-brief mode and operation on another Mac remain separate tests.
 11. **Faster Navigation/Media (saved, not flashed)**: verify Y-initial words and fast Y rolls never trigger arrows, volume or Backspace (watch `you`/`your` at the start of a line), and that the 150 ms idle rule is not annoying when reaching for arrows right after typing. If it is, lower it rather than restoring the dwell.
-12. **Modifier toggles (saved, not flashed)**: verify Cmd+click and Shift+click with the trackpad, and that a forgotten toggle is noticed quickly.
+12. **Modifier toggles**: verify Cmd+click and Shift+click with the trackpad, that a single Y+C or Y+S does nothing, and that a forgotten toggle is noticed quickly.
 
 ## Flashing decision and recovery
 
@@ -414,4 +421,4 @@ Never copy a personal SSH private key into this repository or into firmware arti
 14. Hold X and test H for Tab, Shift thumb+H for Shift+Tab, and V for backslash (Shift+V gives pipe). Test A then Q/P/F at a clean Ghostty shell prompt for leader 1/2/3; do not invoke those layouts inside Neovim. Verify N/I send `[`/`]` (Shift gives `{`/`}`), E/G send Backspace, K sends backtick, and D/W send nothing. Release X to type comma with the Base Command thumb; add Shift for `<`.
 15. In a normal macOS text field, hold Y for 200 ms, hold the Shift thumb, and tap/repeat H/J/K/L to select in each direction. Test Option/Command modified movement separately and release all keys to check for stuck modifiers. Verify the four modifier thumbs retain Base tap outputs. Test Neovim separately, where behavior is editor-dependent.
 16. With a public YouTube video open in a supported browser, test native Space+Y and Shift+Space+Y, then Sofle K+Y and K+Shift+Y after flashing. Expect transcript/full-brief output on the clipboard, no typed `yy`, no trigger outside the supported browsers, and normal Base Y/navigation behavior. Grant macOS Automation access only when deliberately invoking the shortcut.
-17. Hold Y and tap C, release Y, then Cmd+click two Finder items with the trackpad: both should be selected. Hold Y and tap C again, then type a letter: expect a plain letter. Repeat with S and Shift+click to select a range.
+17. Hold Y and tap C once, release Y, then type: expect plain letters, no Command. Then hold Y, tap C twice, release Y, and Cmd+click two Finder items with the trackpad: both should be selected. Hold Y and double-tap C again, then type a letter: expect a plain letter. Repeat with S and Shift+click to select a range.

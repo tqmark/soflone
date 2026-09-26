@@ -17,7 +17,7 @@ The application, Bluetooth, and recovery layer reached by holding K. It can be l
 _Avoid_: Command layer, navigation layer, layer 2
 
 **Navigation/Media**:
-The sparse momentary layer reached by holding Y with the pinky: H/J/K/L arrows, O Backspace, P/F/M volume, C/S Command and Shift toggles, and the four Base modifier thumbs. Holding Y and tapping one of these keys selects it at once; holding Y alone selects it after 200 ms. It reuses the internal MEDIA layer and cannot be locked.
+The sparse momentary layer reached by holding Y with the pinky: H/J/K/L arrows, O Backspace, P/F/M volume, C/S double-tap Command and Shift toggles, and the four Base modifier thumbs. Holding Y and tapping one of these keys selects it at once; holding Y alone selects it after 200 ms. It reuses the internal MEDIA layer and cannot be locked.
 _Avoid_: Function layer, layer 3
 
 **Layer leader**:

@@ -124,6 +124,31 @@
             bindings = <&mo>, <&kp>;
         };
 
+        // Double-tap to arm a modifier for the trackpad. A single tap does
+        // nothing, so a stray Y+C or Y+S cannot leave Command or Shift stuck
+        // down; the second tap flips the modifier, and two more taps release
+        // it. Tap dances are banned elsewhere in this keymap because one
+        // wrapped around a mod-tap delays the modifier and can leak the tap
+        // key. Neither applies here: these wrap &none and &kt, never a
+        // hold-tap, and a single tap emits nothing to leak. CI enforces that
+        // narrower rule.
+        //
+        // Releasing Y between the two taps types an ordinary "c"/"s" and the
+        // dance expires into &none, which is the intended failure.
+        td_command: td_command {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <300>;
+            bindings = <&none>, <&kt LEFT_COMMAND>;
+        };
+
+        td_shift: td_shift {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <300>;
+            bindings = <&none>, <&kt LEFT_SHIFT>;
+        };
+
         // Bind as &hold_bt_clear BT_CLR_CMD 0: BT_CLR is itself two cells
         // ("0 0"), and a third cell shifts every later binding in the layer.
         //
@@ -245,24 +270,24 @@
             display-name = "nav/media";
 
             // Hold Y and tap: H/J/K/L are Left/Down/Up/Right; O is Backspace;
-            // P/F/M are Volume Down/Volume Up/Mute. C and S toggle Command and
-            // Shift on and off, for Cmd/Shift+click on the trackpad; tap again
-            // to release. No forward Delete. See ymedia for why Y rolls stay
-            // letters.
+            // P/F/M are Volume Down/Volume Up/Mute. Double-tap C or S within
+            // 300 ms to hold Command or Shift for Cmd/Shift+click on the
+            // trackpad; double-tap again to release. A single tap does nothing.
+            // No forward Delete. See ymedia for why Y rolls stay letters.
             //
             // Reached only while Y is physically held. There is no &tog here
             // and no exit key, so it is not a layer you can be stranded in.
             // | UNUSED | VOLUME DOWN | VOLUME UP | MUTE | RIGHT | DOWN |
-            // | UNUSED | HELD Y | UNUSED | UNUSED | SHIFT TOGGLE | BACKSPACE |
-            // | COMMAND TOGGLE | UNUSED | UNUSED | LEFT | UNUSED | UNUSED |
+            // | UNUSED | HELD Y | UNUSED | UNUSED | SHIFT TOGGLE (2x) | BACKSPACE |
+            // | COMMAND TOGGLE (2x) | UNUSED | UNUSED | LEFT | UNUSED | UNUSED |
             // | UNUSED | UNUSED | UNUSED | UNUSED | UNUSED | UNUSED | UP |
             // The four modifier thumbs use the Base tap/hold behaviors. Z is
             // unused here: release Y to return to the underlying layer.
 
             bindings = <
 &none  &kp C_VOL_DN  &kp C_VOL_UP  &kp C_MUTE  &kp RIGHT  &kp DOWN                              &trans  &trans  &trans  &trans  &trans  &trans
-&none  &none         &none         &none       &kt LEFT_SHIFT  &kp BACKSPACE                        &trans  &trans  &trans  &trans  &trans  &trans
-&kt LEFT_COMMAND  &none  &none      &kp LEFT    &none      &none                                 &trans  &trans  &trans  &trans  &trans  &trans
+&none  &none         &none         &none       &td_shift       &kp BACKSPACE                        &trans  &trans  &trans  &trans  &trans  &trans
+&td_command       &none  &none      &kp LEFT    &none      &none                                 &trans  &trans  &trans  &trans  &trans  &trans
 &none  &none         &none         &none       &none      &none         &kp UP                  &trans  &trans  &trans  &trans  &trans  &trans  &trans
               &none    &mt LEFT_ALT SLASH  &mt LEFT_CONTROL ESC  &mt LEFT_COMMAND COMMA  &mt LEFT_SHIFT SPACE  &trans  &trans  &trans  &trans  &trans
             >;
