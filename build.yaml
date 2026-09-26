@@ -22,9 +22,11 @@ include:
   # New Sofle (serial ...33F97): the name comes from config/sofle.conf.
   - board: nice_nano_v2
     shield: sofle_left
-  # Old Sofle (serial ...2707E): identical firmware, renamed so macOS can tell
-  # the two apart. Karabiner matches the USB IDs, not the name.
+  # Old Sofle (serial ...2707E): identical firmware, but it advertises
+  # "darksofle" over Bluetooth so the two can be told apart when pairing. Only
+  # the Bluetooth name changes: USB and the device model stay SofleL-FlatMT.
+  # Karabiner matches the USB IDs, not either name.
   - board: nice_nano_v2
     shield: sofle_left
-    cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"darksofle\"
+    cmake-args: -DCONFIG_BT_DEVICE_NAME=\"darksofle\"
     artifact-name: darksofle
