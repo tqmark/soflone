@@ -19,18 +19,10 @@
 #
 ---
 include:
-  # One firmware, two Bluetooth names, so the two Sofles can be told apart when
-  # pairing. Only CONFIG_BT_DEVICE_NAME differs: USB and the device model stay
-  # SofleL-FlatMT (from config/sofle.conf) on both. Karabiner matches the USB
-  # IDs, not either name.
-  #
-  # New Sofle (serial ...33F97).
+  # Both Sofles (serials ...33F97 and ...2707E) flash this one file. USB and
+  # Bluetooth both use the name from config/sofle.conf, SofleL-FlatMT; each
+  # keyboard still has its own Bluetooth address and pairings. The explicit
+  # artifact name replaces the automatic sofle_left-nice_nano__zmk-zmk.
   - board: nice_nano//zmk
     shield: sofle_left
-    cmake-args: -DCONFIG_BT_DEVICE_NAME=\"lightsofle\"
-    artifact-name: lightsofle
-  # Old Sofle (serial ...2707E).
-  - board: nice_nano//zmk
-    shield: sofle_left
-    cmake-args: -DCONFIG_BT_DEVICE_NAME=\"darksofle\"
-    artifact-name: darksofle
+    artifact-name: sofle

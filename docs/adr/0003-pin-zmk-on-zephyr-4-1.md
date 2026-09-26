@@ -16,4 +16,4 @@ A source comparison against the previous pin `abb64ba` found no change in the ke
 
 ## Consequences
 
-`config/west.yml` and the reusable-workflow ref in `.github/workflows/build.yml` must name the same commit, since the workflow chooses the build image. Both builds have explicit artifact names (`lightsofle`, `darksofle`), so the board rename does not change the file names. The Raise+D bootloader hold must be tested on the keyboard after the first flash, with the reset-button double tap as the fallback.
+`config/west.yml` and the reusable-workflow ref in `.github/workflows/build.yml` must name the same commit, since the workflow chooses the build image. The single build has an explicit artifact name, `sofle`, instead of the automatic `sofle_left-nice_nano__zmk-zmk`. The Raise+D bootloader hold must be tested on the keyboard after the first flash, with the reset-button double tap as the fallback.
