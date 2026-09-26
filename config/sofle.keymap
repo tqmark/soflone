@@ -185,7 +185,7 @@
         compatible = "zmk,keymap";
 
         default_layer {
-            display-name = "default";
+            display-name = "Default";
 
             // Left half: all letters plus thumb tap/hold behaviors. The right half is disconnected.
             // | Q | P | F | M | L | J |
@@ -207,7 +207,7 @@
         };
 
         lower_layer {
-            display-name = "lower";
+            display-name = "Lower";
 
             // Left half:
             // | 1 | 2 | 3 | 4 | 5 | 6 |
@@ -238,7 +238,7 @@
         };
 
         raise_layer {
-            display-name = "raise";
+            display-name = "Raise";
 
             // Hold K to use temporarily, or hold K then tap Z to lock. Tap Z to leave.
             // K itself taps ESC here. Z is the single reliable layer exit.
@@ -266,7 +266,7 @@
         };
 
         media_layer {
-            display-name = "nav/media";
+            display-name = "Nav/media";
 
             // Hold Y and tap: H/J/K/L are Left/Down/Up/Right; O is Backspace;
             // P/F/M are Volume Down/Volume Up/Mute. Double-tap C or S within

@@ -22,7 +22,7 @@ This is the durable record of the decisions made while adapting the Sofle and th
 - Shield: `sofle_left`
 - Saved ZMK revision: `9ebbeff0a8b69a42f14aec022cdf16c7a107b9e0` (Zephyr 4.1, saved on branch `zmk-zephyr-4.1`, not flashed). Both keyboards were built on `abb64ba316c29caddc49727ca2cac2f0ed5970c7` (Zephyr 3.5).
 - Build matrix: left shield only; the earlier right-shield build was removed
-- OLED: enabled
+- OLED: enabled; the layer name uses the light UNSCII 8 font (saved, not flashed), the top-row icons ZMK's default Montserrat 16
 - RGB and encoders: disabled
 - Bluetooth profiles: only ZMK profiles 0 and 1 are exposed (previously labeled BT1/BT2)
 - Baseline before the flattened-modifier safety change: `362f3bff9ba0c4503625a8daa77b474c61dfec60`
@@ -142,7 +142,7 @@ O        Backspace
 C / S    double-tap within 300 ms: hold Command / Shift (double-tap to release)
 ```
 
-- This reuses the existing fourth layer; there is no fifth layer or new letter hold-tap. The internal `MEDIA` index and `ymedia` behavior remain unchanged; the OLED label is `nav/media`.
+- This reuses the existing fourth layer; there is no fifth layer or new letter hold-tap. The internal `MEDIA` index and `ymedia` behavior remain unchanged; the OLED label is `Nav/media`.
 - The user confirmed Y is a pinky key, leaving physical H/J/K/L available as arrows. Holding K cannot offer K/Up; Y avoids that physical conflict. O is index-finger Backspace, alongside Lower+E/G.
 - P/F/M keep the three volume actions together. L is now Right and J is Down. A is unused: there is no forward Delete on the active left half.
 - C and S are double-tap key toggles for Command and Shift, for Cmd+click, Shift+click and similar trackpad use with one hand. Hold Y, tap C twice within 300 ms, use the trackpad, then double-tap again to release. A single tap emits nothing, so a stray Y+C cannot strand a modifier. This is firmware-only; macOS Sticky Keys stays off. Releasing Y between the two taps types an ordinary `c`/`s`. The OLED does not show held modifiers, so a forgotten toggle shows up as modified typing: nothing else clears it, because ZMK counts modifier presses and the Command thumb's own press/release leaves the count above zero.
@@ -363,6 +363,7 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 - A source diff between the two ZMK commits found no change to hold-tap, tap dance, combos, macros, sticky layer, key toggle, `&tog` layer locking, or the USB-powered sleep exception. `&bootloader` now enters the UF2 bootloader through Zephyr's retention boot mode on the `zmk` board variant, so Raise+D needs a physical test after flashing.
 - Per-keyboard names were briefly `darksofle`/`lightsofle`. A byte comparison of the two images showed they differed only in the name string and the one-byte shift it causes. ZMK compiles the Bluetooth name into the firmware, so different names require different files. The user chose one file for both keyboards instead: a single `sofle` artifact, both named `SofleL-FlatMT`. This also replaces the automatic `sofle_left-nice_nano__zmk-zmk` file name.
 - Saved on a branch, not flashed. The old Sofle stays on `a6ecdd8` and the new Sofle on `b246979`, both on Zephyr 3.5, until the user flashes the upgrade.
+- The user found the OLED layer name too bold and wanted only its first letter capitalised. The layer name font changed from Montserrat 12 to UNSCII 8 (`CONFIG_ZMK_LV_FONT_DEFAULT_SMALL_UNSCII_8`), whose strokes are one pixel wide. The names are now `Default`, `Lower`, `Raise` and `Nav/media`. The top-row icons stay in Montserrat 16, because the built-in status screen draws them from that font and UNSCII has none of them. A bold or custom font would need a custom status screen and was not pursued.
 
 ## Decisions deliberately rejected or superseded
 
