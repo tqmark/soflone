@@ -6,7 +6,7 @@ ZMK firmware for a left-half-only Sofle, used by a programmer with only the left
 - `config/west.yml` is pinned before Zephyr 4.1 on purpose. Do not bump ZMK or rename `nice_nano_v2`.
 - Saved firmware is not flashed firmware. Record a flash only after the user or the DFU output confirms it; a green CI build proves nothing about the keyboard.
 - A binding change also updates the keymap comments, the decision history (current keymap, chronology, regression test) and `scripts/check-keymap-layout.py`.
-- Treat Raise V+W (clear Bluetooth) and Raise X+G (bootloader) as destructive; never trigger or move them casually.
+- Destructive actions are one-second holds (Raise+W clears Bluetooth, Raise+D enters the bootloader), never combos: a Base combo's one-shot Raise makes a repeated chord a Raise combo. The flashed firmware may still use the older X+G bootloader; check the decision history.
 
 Checks (CI runs the same, then builds):
 

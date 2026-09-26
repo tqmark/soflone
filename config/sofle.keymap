@@ -85,24 +85,10 @@
             layers = <BASE>;
         };
 
-        // Both destructive combos used to sit on the editing keys: <0 5> was
-        // Left-arrow + Backspace, and <4 5> was the same L+J chord trained as
-        // Backspace elsewhere, one slip from dropping into UF2 with no HID.
-        // Moved onto the bottom row, where they are deliberate finger presses
-        // and never occur while navigating or deleting.
-        clear_bluetooth {          // V + W on Raise; NOT the BT selector keys
-            bindings = <&bt BT_CLR>;
-            key-positions = <38 39>;
-            layers = <RAISE>;
-            timeout-ms = <50>;
-        };
-
-        bootloader_combo {         // X + G on Raise, bottom row
-            bindings = <&bootloader>;
-            key-positions = <36 37>;
-            layers = <RAISE>;
-            timeout-ms = <150>;
-        };
+        // No destructive combos. Raise V+W used to clear Bluetooth, but the
+        // Base V+W one-shot leaves Raise highest for up to a second, so V+W
+        // twice cleared the pairing. Raise X+G was the bootloader and one slip
+        // from the Lower X-then-G Backspace. Both are one-second holds now.
     };
 
     behaviors {
@@ -114,16 +100,48 @@
         // &lt; locking moved to Z, which is a standalone press and cannot be
         // torn down by the &lt release.
 
-        // The user operates Y with the pinky, leaving the index finger free
-        // for O/Backspace and H/J/K/L available for navigation. Reuse Media
-        // rather than adding a fifth layer. Tap-preferred still requires the
-        // full 200 ms hold, protecting quick Y rolls from navigation/media.
+        // The user operates Y with the pinky; H/J/K/L are the arrows. Reuse
+        // Media rather than adding a fifth layer. Three guards replace the old
+        // mandatory 200 ms dwell:
+        // - require-prior-idle: Y within 150 ms of typing is always a letter,
+        //   so mid-word rolls (days, eye, any) never reach Nav.
+        // - positional: Nav engages only if the FIRST key after Y is a Nav key
+        //   or thumb. Most Y-initial words (yes, yet, year, yard) continue on
+        //   E/A/U/I, none of which is listed, so they always type. O is listed
+        //   for Backspace, so you/your after a pause rely on the next guard.
+        // - balanced: that Nav key must also be released while Y is held, so
+        //   a rolled Y+key stays two letters. Holding Y alone still gives Nav
+        //   after 200 ms, as before.
+        // Positions: P F M L J = 1-5, S = 16, O = 17, C = 24, H = 27, K = 42, and the
+        // four modifier thumbs 51-54 for Shift/Option/Command movement.
         ymedia: ymedia {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            flavor = "tap-preferred";
+            flavor = "balanced";
             tapping-term-ms = <200>;
+            require-prior-idle-ms = <150>;
+            hold-trigger-key-positions = <1 2 3 4 5 16 17 24 27 42 51 52 53 54>;
             bindings = <&mo>, <&kp>;
+        };
+
+        // Destructive actions are one-second holds on Raise keys that are
+        // unused on Lower and Nav/Media too, so neither a doubled V+W nor
+        // Lower muscle memory with Raise locked can reach them. Tapping does
+        // nothing; tap-preferred fires the hold only on the timer.
+        hold_bt_clear: hold_bt_clear {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <1000>;
+            bindings = <&bt>, <&none>;
+        };
+
+        hold_bootloader: hold_bootloader {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <1000>;
+            bindings = <&bootloader>, <&none>;
         };
 
         lower_bslash_base: lower_bslash_base {
@@ -169,8 +187,8 @@
             // | 7 | 8 | 9 | 0 | - | = |
             // | ' | UNUSED | ; | TAB | BACKSPACE | CTRL+A |
             // Hold X to use temporarily, or hold X then tap Z to lock. Tap Z to leave.
-            // Hold X then tap E or G for Backspace; Y+O is still available.
-            // This is a Lower binding, not a combo. Raise X+G stays bootloader.
+            // Hold X then tap E or G for Backspace; Y+O also works from Base.
+            // This is a Lower binding, not a combo.
             // Shift+Tab uses the Shift thumb plus H/Tab.
             // | BACKSLASH: tap \\ / hold BASE | BACKSPACE | BACKSLASH | UNUSED | [ | ] | ` |
             // V makes backslash/pipe reachable while X is held. Slash is on
@@ -199,21 +217,21 @@
             // K itself taps ESC here. Z is the single reliable layer exit.
             // V+W on Base activates Raise for one keypress, normally to launch an app.
             // Q/P (Lower's 1/2 positions) select existing BT profiles 0/1.
-            // Recovery combos stay on the bottom row: V+W clears the selected
-            // Bluetooth profile; X+G enters the bootloader. Do not move clear
-            // onto the BT selectors. Navigation and Backspace now live on Y.
+            // Recovery is a one-second hold: W clears the selected Bluetooth
+            // profile; D enters the bootloader. Both are unused on Lower and
+            // Nav/Media. Do not move clear onto the BT selectors.
             // | BT0      | BT1    | FINDER   | UNUSED | UNUSED   | UNUSED |
             // Y emits F18 for browser transcript; Shift+Y requests the full brief.
             // | BROWSER  | BRIEF  | UNUSED   | UNUSED | SETTINGS | UNUSED |
-            // | CHAT     | UNUSED | TERMINAL | UNUSED | UNUSED   | UNUSED |
-            // | UNUSED   | UNUSED | UNUSED   | UNUSED | NOTES    | DISPLAY ON | ESC |
+            // | CHAT     | HOLD 1s: BOOTLOADER | TERMINAL | UNUSED | UNUSED   | UNUSED |
+            // | UNUSED   | UNUSED | UNUSED   | HOLD 1s: CLEAR BT | NOTES    | DISPLAY ON | ESC |
             //     | Z: lock / unlock | SLASH/ALT | ESC/CTRL | COMMA/CMD | SPACE/SHIFT |
 
             bindings = <
 &bt BT_SEL 0  &bt BT_SEL 1       &kp F19        &none              &none              &none                                        &trans     &trans    &trans    &trans     &trans   &trans
 &kp F13       &kp F18            &none          &none              &kp F17            &none                                        &kp PG_UP  &trans    &kp UP    &trans     &kp N0   &trans
-&kp F16       &none              &kp F14        &none              &none              &none                                        &kp PG_DN  &kp LEFT  &kp DOWN  &kp RIGHT  &kp DEL  &kp BSPC
-&none         &none              &none          &none              &kp F15            &ext_power EP_ON   &kp ESC           &trans  &trans     &trans    &trans    &trans     &trans   &trans
+&kp F16       &hold_bootloader 0 0  &kp F14        &none              &none              &none                                        &kp PG_DN  &kp LEFT  &kp DOWN  &kp RIGHT  &kp DEL  &kp BSPC
+&none         &none              &none          &hold_bt_clear BT_CLR 0  &kp F15            &ext_power EP_ON   &kp ESC           &trans  &trans     &trans    &trans    &trans     &trans   &trans
                                  &tog RAISE    &mt LEFT_ALT SLASH  &mt LEFT_CONTROL ESC  &mt LEFT_COMMAND COMMA  &mt LEFT_SHIFT SPACE    &trans  &trans     &trans    &trans    &trans
             >;
 
@@ -223,23 +241,25 @@
         media_layer {
             display-name = "nav/media";
 
-            // Hold Y for 200 ms: H/J/K/L are Left/Down/Up/Right; O is Backspace.
-            // P/F/M are Volume Down/Volume Up/Mute. No forward Delete.
-            // The deliberate dwell protects quick Y rolls from commands.
+            // Hold Y and tap: H/J/K/L are Left/Down/Up/Right; O is Backspace;
+            // P/F/M are Volume Down/Volume Up/Mute. C and S toggle Command and
+            // Shift on and off, for Cmd/Shift+click on the trackpad; tap again
+            // to release. No forward Delete. See ymedia for why Y rolls stay
+            // letters.
             //
             // Reached only while Y is physically held. There is no &tog here
             // and no exit key, so it is not a layer you can be stranded in.
             // | UNUSED | VOLUME DOWN | VOLUME UP | MUTE | RIGHT | DOWN |
-            // | UNUSED | HELD Y | UNUSED | UNUSED | UNUSED | BACKSPACE |
-            // | UNUSED | UNUSED | UNUSED | LEFT | UNUSED | UNUSED |
+            // | UNUSED | HELD Y | UNUSED | UNUSED | SHIFT TOGGLE | BACKSPACE |
+            // | COMMAND TOGGLE | UNUSED | UNUSED | LEFT | UNUSED | UNUSED |
             // | UNUSED | UNUSED | UNUSED | UNUSED | UNUSED | UNUSED | UP |
             // The four modifier thumbs use the Base tap/hold behaviors. Z is
             // unused here: release Y to return to the underlying layer.
 
             bindings = <
 &none  &kp C_VOL_DN  &kp C_VOL_UP  &kp C_MUTE  &kp RIGHT  &kp DOWN                              &trans  &trans  &trans  &trans  &trans  &trans
-&none  &none         &none         &none       &none      &kp BACKSPACE                         &trans  &trans  &trans  &trans  &trans  &trans
-&none  &none         &none         &kp LEFT    &none      &none                                 &trans  &trans  &trans  &trans  &trans  &trans
+&none  &none         &none         &none       &kt LEFT_SHIFT  &kp BACKSPACE                        &trans  &trans  &trans  &trans  &trans  &trans
+&kt LEFT_COMMAND  &none  &none      &kp LEFT    &none      &none                                 &trans  &trans  &trans  &trans  &trans  &trans
 &none  &none         &none         &none       &none      &none         &kp UP                  &trans  &trans  &trans  &trans  &trans  &trans  &trans
               &none    &mt LEFT_ALT SLASH  &mt LEFT_CONTROL ESC  &mt LEFT_COMMAND COMMA  &mt LEFT_SHIFT SPACE  &trans  &trans  &trans  &trans  &trans
             >;

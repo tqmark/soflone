@@ -64,13 +64,14 @@ def validate(source):
         "Q": "&bt BT_SEL 0", "P": "&bt BT_SEL 1", "B": "&kp F13", "T": "&kp F14",
         "N": "&kp F15", "C": "&kp F16", "S": "&kp F17", "F": "&kp F19", "Y": "&kp F18",
         "I": "&ext_power EP_ON", "K": "&kp ESC", "Z": "&tog RAISE",
+        "D": "&hold_bootloader 0 0", "W": "&hold_bt_clear BT_CLR 0",
     })
 
     nav_media = dict(THUMBS)
     nav_media.update({
         "P": "&kp C_VOL_DN", "F": "&kp C_VOL_UP", "M": "&kp C_MUTE",
         "H": "&kp LEFT", "J": "&kp DOWN", "K": "&kp UP", "L": "&kp RIGHT",
-        "O": "&kp BACKSPACE",
+        "O": "&kp BACKSPACE", "C": "&kt LEFT_COMMAND", "S": "&kt LEFT_SHIFT",
     })
 
     for name, expected in zip(
@@ -82,15 +83,14 @@ def validate(source):
             require(layers[name][position] == wanted,
                     f"{name} physical {key}: expected {wanted}, got {layers[name][position]}")
 
-    # Existing combo scope and recovery gestures must not follow moved selectors.
+    # Benign combos stay scoped to Base. No combo may be destructive: a Base
+    # combo's one-shot Raise makes a second press of the same chord a Raise combo.
     expected_combos = {
         "grave": ("0 1", "BASE", "&kp GRAVE", None),
         "tab": ("12 13", "BASE", "&kp TAB", None),
         "raise_once": ("38 39", "BASE", "&sl RAISE", None),
-        "clear_bluetooth": ("38 39", "RAISE", "&bt BT_CLR", "50"),
-        "bootloader_combo": ("36 37", "RAISE", "&bootloader", "150"),
     }
-    require(len(re.findall(r"\bkey-positions\s*=", source)) == len(expected_combos),
+    require(len(re.findall(r"(?<![-\w])key-positions\s*=", source)) == len(expected_combos),
             "Unexpected combo count")
     for name, (positions, layer, binding, timeout) in expected_combos.items():
         match = re.search(r"\b" + name + r"\s*\{([^}]*)\}", source)
@@ -107,7 +107,7 @@ def validate(source):
     for name, pattern, flavor in (
         ("mt", r"&mt\s*\{([^}]*)\}", "hold-preferred"),
         ("lt", r"&lt\s*\{([^}]*)\}", "hold-preferred"),
-        ("ymedia", r"ymedia:\s*ymedia\s*\{([^}]*)\}", "tap-preferred"),
+        ("ymedia", r"ymedia:\s*ymedia\s*\{([^}]*)\}", "balanced"),
     ):
         match = re.search(pattern, source)
         require(match is not None, f"Missing hold behavior {name}")
@@ -117,6 +117,22 @@ def validate(source):
         if name == "ymedia":
             require(re.search(r"bindings\s*=\s*<&mo>\s*,\s*<&kp>", body),
                     "Y must hold a momentary layer and tap a key")
+            require(re.search(r"require-prior-idle-ms\s*=\s*<150>", body),
+                    "ymedia: Y typed within 150 ms of another key must stay a letter")
+            triggers = re.search(r"hold-trigger-key-positions\s*=\s*<([^>]*)>", body)
+            wanted = sorted(POSITIONS[k] for k in "P F M L J S O C H K slash esc comma space".split())
+            require(triggers is not None and sorted(map(int, triggers.group(1).split())) == wanted,
+                    "ymedia: hold triggers must be exactly the Nav keys and modifier thumbs")
+
+    # Destructive actions: one-second hold, tap does nothing.
+    for name, hold in (("hold_bt_clear", "&bt"), ("hold_bootloader", "&bootloader")):
+        match = re.search(name + r":\s*" + name + r"\s*\{([^}]*)\}", source)
+        require(match is not None, f"Missing {name}")
+        body = match.group(1)
+        require(re.search(r'flavor\s*=\s*"tap-preferred"', body), f"{name}: must fire only on the timer")
+        require(re.search(r"tapping-term-ms\s*=\s*<1000>", body), f"{name}: hold must be one second")
+        require(re.search(r"bindings\s*=\s*<" + hold + r">\s*,\s*<&none>", body),
+                f"{name}: tap must do nothing")
     require("zmk,behavior-tap-dance" not in source, "Tap dances are intentionally disabled")
 
 
@@ -125,4 +141,4 @@ if __name__ == "__main__":
         validate(Path(sys.argv[1] if len(sys.argv) > 1 else "config/sofle.keymap").read_text())
     except ValueError as error:
         sys.exit(f"FAIL: {error}")
-    print("PASS: four 60-position layers; left bindings, modifiers, timing, and recovery combos match")
+    print("PASS: four 60-position layers; left bindings, modifiers, timing, combos and recovery holds match")
