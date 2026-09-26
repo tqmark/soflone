@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the existing brief tool for the active supported browser's YouTube tab."""
+"""Run the existing brief tool for the active browser's YouTube tab."""
 
 from pathlib import Path
 import subprocess
@@ -7,16 +7,20 @@ import sys
 from urllib.parse import urlsplit
 
 
-# Compile against Chrome's Chromium dictionary; choose only the frontmost app.
-# No synthetic keystrokes, clipboard reads, cookies, or network calls here.
+# Only Vivaldi is named here, and that is deliberate -- `using terms from`
+# resolves the dictionary at *compile* time, so naming a browser that is not
+# installed fails the whole script rather than just that branch. Vivaldi is the
+# only browser in the Brewfile, so it is the only one guaranteed to be there.
+# Choose only the frontmost app. No synthetic keystrokes, clipboard reads,
+# cookies, or network calls here.
 BROWSER_URL_SCRIPT = '''
 tell application "System Events"
     set browserID to bundle identifier of first application process whose frontmost is true
 end tell
-if browserID is not in {"com.google.Chrome", "com.brave.Browser", "com.microsoft.edgemac", "company.thebrowser.Browser"} then
-    error "Use Chrome, Brave, Edge, or Arc"
+if browserID is not in {"com.vivaldi.Vivaldi"} then
+    error "Use Vivaldi"
 end if
-using terms from application "Google Chrome"
+using terms from application "Vivaldi"
     tell application id browserID
         if (count of windows) is 0 then error "No browser window"
         return URL of active tab of front window
@@ -50,7 +54,7 @@ def main(argv=None, *, run=subprocess.run, brief_path=None):
                      capture_output=True, text=True, check=True, timeout=10)
         url = result.stdout.strip()
         if not youtube_url(url):
-            print("Open a YouTube video in Chrome, Brave, Edge, or Arc first.", file=sys.stderr)
+            print("Open a YouTube video in Vivaldi first.", file=sys.stderr)
             return 1
         command = [str(brief_path or Path.home() / ".local/bin/brief")]
         if args[0] == "transcript":

@@ -43,10 +43,7 @@
                         {
                             "type": "frontmost_application_if",
                             "bundle_identifiers": [
-                                "^com\\.google\\.Chrome$",
-                                "^com\\.brave\\.Browser$",
-                                "^com\\.microsoft\\.edgemac$",
-                                "^company\\.thebrowser\\.Browser$"
+                                "^com\\.vivaldi\\.Vivaldi$"
                             ]
                         }
                     ],
@@ -90,10 +87,7 @@
                         {
                             "type": "frontmost_application_if",
                             "bundle_identifiers": [
-                                "^com\\.google\\.Chrome$",
-                                "^com\\.brave\\.Browser$",
-                                "^com\\.microsoft\\.edgemac$",
-                                "^company\\.thebrowser\\.Browser$"
+                                "^com\\.vivaldi\\.Vivaldi$"
                             ]
                         }
                     ],
@@ -131,10 +125,7 @@
                         {
                             "type": "frontmost_application_if",
                             "bundle_identifiers": [
-                                "^com\\.google\\.Chrome$",
-                                "^com\\.brave\\.Browser$",
-                                "^com\\.microsoft\\.edgemac$",
-                                "^company\\.thebrowser\\.Browser$"
+                                "^com\\.vivaldi\\.Vivaldi$"
                             ]
                         }
                     ],
@@ -162,10 +153,7 @@
                         {
                             "type": "frontmost_application_if",
                             "bundle_identifiers": [
-                                "^com\\.google\\.Chrome$",
-                                "^com\\.brave\\.Browser$",
-                                "^com\\.microsoft\\.edgemac$",
-                                "^company\\.thebrowser\\.Browser$"
+                                "^com\\.vivaldi\\.Vivaldi$"
                             ]
                         }
                     ],

@@ -7,7 +7,7 @@ These files restore the browser action that existed in older Karabiner backups b
 | Native / non-Sofle | Space+Y | Shift+Space+Y |
 | Sofle | Hold K, tap Y | Hold K and the Shift thumb, tap Y |
 
-The native version uses the same 30 ms simultaneous-chord window as the existing Space app launchers, not a global Space hold layer. Hold Shift first for the shifted variant. Native rules exclude the Sofle; Sofle F18 rules require its VID/PID (`1d50:615e`). Both are restricted to Chrome, Brave, Edge, and Arc. Holding Base Y still opens Navigation/Media, unchanged.
+The native version uses the same 30 ms simultaneous-chord window as the existing Space app launchers, not a global Space hold layer. Hold Shift first for the shifted variant. Native rules exclude the Sofle; Sofle F18 rules require its VID/PID (`1d50:615e`). Both are restricted to Vivaldi. Holding Base Y still opens Navigation/Media, unchanged.
 
 ## Files and installation
 
@@ -22,7 +22,7 @@ Back up the personal Karabiner configuration before adding these rules to the ac
 
 The wrapper reads the URL from the frontmost supported browser using AppleScript, checks that it is an HTTP(S) YouTube URL, and passes it as an explicit argument to the existing `brief` tool. Transcript mode adds `-t`; full mode does not. The existing tool copies the result to the clipboard. The wrapper never reads the clipboard, types Vimium `yy`, launches a browser, or selects a fallback tab. Unsupported URLs and browser-read failures do not invoke `brief`.
 
-This intentionally replaces the old Vimium/clipboard timing dependency while restoring the original user-facing actions. Chrome's installed AppleScript dictionary is used to compile the Chromium URL query. macOS may ask for Automation access to System Events and the chosen browser on first use; grant it only when you deliberately trigger this shortcut.
+This intentionally replaces the old Vimium/clipboard timing dependency while restoring the original user-facing actions. Vivaldi's installed AppleScript dictionary is used to compile the URL query, so Vivaldi must be installed for the script to compile. macOS may ask for Automation access to System Events and the chosen browser on first use; grant it only when you deliberately trigger this shortcut.
 
 ## Checks
 

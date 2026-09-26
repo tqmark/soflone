@@ -7,10 +7,7 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BROWSERS = {
-    r"^com\.google\.Chrome$", r"^com\.brave\.Browser$",
-    r"^com\.microsoft\.edgemac$", r"^company\.thebrowser\.Browser$",
-}
+BROWSERS = {r"^com\.vivaldi\.Vivaldi$"}
 DEVICE = {"vendor_id": 7504, "product_id": 24926}
 PREFIX = 'PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" python3 ~/.config/karabiner/browser_brief.py '
 
