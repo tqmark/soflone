@@ -19,13 +19,17 @@
 #
 ---
 include:
-  # New Sofle (serial ...33F97): the name comes from config/sofle.conf.
+  # One firmware, two Bluetooth names, so the two Sofles can be told apart when
+  # pairing. Only CONFIG_BT_DEVICE_NAME differs: USB and the device model stay
+  # SofleL-FlatMT (from config/sofle.conf) on both. Karabiner matches the USB
+  # IDs, not either name.
+  #
+  # New Sofle (serial ...33F97).
   - board: nice_nano//zmk
     shield: sofle_left
-  # Old Sofle (serial ...2707E): identical firmware, but it advertises
-  # "darksofle" over Bluetooth so the two can be told apart when pairing. Only
-  # the Bluetooth name changes: USB and the device model stay SofleL-FlatMT.
-  # Karabiner matches the USB IDs, not either name.
+    cmake-args: -DCONFIG_BT_DEVICE_NAME=\"lightsofle\"
+    artifact-name: lightsofle
+  # Old Sofle (serial ...2707E).
   - board: nice_nano//zmk
     shield: sofle_left
     cmake-args: -DCONFIG_BT_DEVICE_NAME=\"darksofle\"

@@ -28,7 +28,7 @@ This is the durable record of the decisions made while adapting the Sofle and th
 - Baseline before the flattened-modifier safety change: `362f3bff9ba0c4503625a8daa77b474c61dfec60`
 - Last successful build before that safety change: [GitHub Actions run 34733958813](https://github.com/tqmark/sofli/actions/runs/34733958813)
 - Firmware name after the safety change: `SofleL-FlatMT`
-- Per-keyboard Bluetooth names (saved, not flashed): the old Sofle (`2707E`) gets the `darksofle` build artifact, the same firmware with only `CONFIG_BT_DEVICE_NAME` overridden in `build.yaml`. Its USB name stays `SofleL-FlatMT`, as does the new Sofle's (`33F97`). macOS keeps the name recorded when a keyboard was paired (or a name set in Bluetooth settings), so a new advertised name may appear only after pairing again. Flash each keyboard with its own artifact.
+- Per-keyboard Bluetooth names: the old Sofle (`2707E`) gets the `darksofle` artifact (flashed) and the new Sofle (`33F97`) the `lightsofle` artifact (saved, not flashed). Both are the same firmware with only `CONFIG_BT_DEVICE_NAME` overridden in `build.yaml`; the USB name stays `SofleL-FlatMT` on both. macOS keeps the name recorded when a keyboard was paired (or a name set in Bluetooth settings), so a new advertised name may appear only after pairing again. Flash each keyboard with its own artifact.
 
 The full Sofle matrix still appears in `config/sofle.keymap`; the right-side entries are inactive placeholders required by the shield. The layouts below show only the physical left half.
 
@@ -361,7 +361,7 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 - The user asked for the latest ZMK with the same setup. ZMK is pinned to main at `9ebbeff` (Zephyr v4.1.0+zmk-fixes, Hardware Model V2) instead of `abb64ba`, and the reusable build workflow moves to the same commit. No ZMK release carries Zephyr 4.1 yet. See [ADR 0003](adr/0003-pin-zmk-on-zephyr-4-1.md).
 - The board is renamed from `nice_nano_v2` to `nice_nano//zmk` (default revision 2.0.0, the same hardware). The `sofle_left` shield, keymap, `sofle.conf` options and every binding are unchanged. The unused, deprecated `label` was removed from `lower_bslash_base`.
 - A source diff between the two ZMK commits found no change to hold-tap, tap dance, combos, macros, sticky layer, key toggle, `&tog` layer locking, or the USB-powered sleep exception. `&bootloader` now enters the UF2 bootloader through Zephyr's retention boot mode on the `zmk` board variant, so Raise+D needs a physical test after flashing.
-- The default artifact is now named `sofle_left-nice_nano__zmk`; `darksofle` is unchanged.
+- The user wants the two Sofles identical except for their Bluetooth names, so the new Sofle's build now also overrides only `CONFIG_BT_DEVICE_NAME`, to `lightsofle`, with artifact `lightsofle`. This replaces the automatic name, which the board rename had turned into `sofle_left-nice_nano__zmk-zmk`.
 - Saved on a branch, not flashed. The old Sofle stays on `a6ecdd8` and the new Sofle on `b246979`, both on Zephyr 3.5, until the user flashes the upgrade.
 
 ## Decisions deliberately rejected or superseded
@@ -415,7 +415,7 @@ Never copy a personal SSH private key into this repository or into firmware arti
 
 ## Regression test after flashing the saved firmware
 
-1. Confirm macOS sees the USB keyboard name `SofleL-FlatMT` on both Sofles, and that the old Sofle (`2707E`) advertises `darksofle` when pairing over Bluetooth. Tap Z to ensure Base, then type ordinary Q/U, X, K, comma, and Space at normal speed.
+1. Confirm macOS sees the USB keyboard name `SofleL-FlatMT` on both Sofles, and that the old Sofle (`2707E`) advertises `darksofle` and the new Sofle (`33F97`) `lightsofle` when pairing over Bluetooth. Tap Z to ensure Base, then type ordinary Q/U, X, K, comma, and Space at normal speed.
 2. Hold X and immediately tap Q: expect `1`, with no leaked `x` or `q`.
 3. Hold X, tap Z, release X, tap Q: expect `1`. Tap Z and then Q: expect `q`.
 4. Lock Lower, hold physical X for Base peek, tap Space, release X: expect one Space and return to Lower.
