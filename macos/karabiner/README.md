@@ -16,7 +16,7 @@ The native version uses the same 30 ms simultaneous-chord window as the existing
 - Requires the existing executable `~/.local/bin/brief` and its existing dependencies, including `yt-dlp`, Python, and macOS clipboard utilities. This repository does not copy or modify that separate tool.
 - Sofle Raise+Y must emit F18; Shift is handled by the existing Shift thumb. Each Sofle needs its new firmware flashed separately.
 
-Back up the personal Karabiner configuration before adding these rules to the active profile. Preserve all unrelated rules and profiles. The current Mac's pre-install backup is `~/.config/karabiner/automatic_backups/karabiner_20260919_before_browser_brief.json`.
+Back up the personal Karabiner configuration before adding these rules to the active profile. Preserve all unrelated rules and profiles. Save the backup under `~/.config/karabiner/automatic_backups/`, e.g. `karabiner_<date>_before_browser_brief.json`.
 
 ## Runtime behavior
 

@@ -161,7 +161,7 @@ The complete personal configuration files are intentionally not copied into this
 
 Live configuration: `~/.config/karabiner/karabiner.json`; launcher script: `~/.config/karabiner/open_apps.sh`.
 
-- The native/Sofle browser-brief handlers and helper are installed on this Mac. The shortcut worked once System Events Automation permission was enabled for the current `Karabiner-Console-User-Server` entry; the separately listed lowercase entry was already enabled but did not authorize the running app. Full-brief mode was not separately confirmed.
+- Every Mac gets the same setup: the native/Sofle browser-brief handlers and helper from `macos/karabiner/`, and System Events Automation permission for the current `Karabiner-Console-User-Server` entry. A separately listed lowercase entry may also appear; enabling only that one does not authorize the running app. Full-brief mode was not separately confirmed.
 - On the native Mac keyboard, Caps Lock taps Escape and holds Control with a 200 ms alone timeout.
 - Right Option maps to Left Control.
 - Native Space+B/T/N/C/S/F simultaneous chords open Browser, terminal, Notes, the Slack/Telegram toggle, Settings, and Finder. Space+M remains normal typing. The chords use a 30 ms window and exclude only the Sofle device (VID `0x1d50`, PID `0x615e`); they work in terminals too. When Vivaldi is frontmost, Space+B searches its open tabs instead of launching.
@@ -382,7 +382,7 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 
 ## Known issues and unresolved decisions
 
-1. **Space hold on the new Mac**: the earlier nested tap dance was removed and the direct Space/Shift mod-tap has been flashed on both keyboards. Physical comfort and normal-speed typing still need user testing. Hold Sofle Space, keep holding it, tap A, and expect `A`.
+1. **Space hold**: the earlier nested tap dance was removed and the direct Space/Shift mod-tap has been flashed on both keyboards. Physical comfort and normal-speed typing still need user testing. Hold Sofle Space, keep holding it, tap A, and expect `A`.
 2. **Firmware identity**: both Sofles run `e56630b` (Zephyr 4.1). Physical typing tests remain separate from installation verification. Do not infer future installations merely from a successful CI build or the presence of a UF2 file.
 3. **Redesign ergonomics**: confirm pinky-held Y with H/J/K/L, P/F/M volume, and thumb-modified movement. Also test Lower Tab plus Shift, the Ctrl+A workflow, and the new X-then-G deletion gesture.
 4. **Arbitrary app switching**: Cmd+Tab is disabled, and named launchers do not select every running application. A dependable one-handed general switcher has not been chosen.
@@ -391,14 +391,14 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 7. **USB wake repeat**: an older report said the first key after about 30 seconds over USB could repeat. Cause and current status are unknown.
 8. **OLED**: it was blank during setup and recovered after settings/power experiments. Raise+I exists as a safe power-on path; continued reliability is unconfirmed. The custom status screen is confirmed to show the plain layer name; watch that the name follows layer changes and the icons update.
 9. **Physical ergonomics**: finger assignments, reach, fatigue, accidental locks, missing spaces, unexpected capitals, and multi-modifier comfort need observation rather than assumption.
-10. **Browser brief**: native rules and the helper are installed, and both Sofles have the K+Y firmware bridge. The user confirmed the shortcut worked after correcting the current Karabiner app's System Events Automation permission. Full-brief mode and operation on another Mac remain separate tests.
+10. **Browser brief**: the native rules, the helper and the Sofle K+Y firmware bridge are part of the standard setup. The shortcut works once the current Karabiner app has System Events Automation permission. Full-brief mode remains untested.
 11. **Faster Navigation/Media**: verify Y-initial words and fast Y rolls never trigger arrows, volume or Backspace (watch `you`/`your` at the start of a line), and that the 150 ms idle rule is not annoying when reaching for arrows right after typing. If it is, lower it rather than restoring the dwell.
 12. **Modifier toggles**: verify Cmd+click and Shift+click with the trackpad, that a single Y+C or Y+S does nothing, and that a forgotten toggle is noticed quickly.
 13. **Zephyr 4.1 firmware**: the OLED layer name without icon and the Raise+D bootloader hold are confirmed. Run the full regression test, in particular hold-tap timing and battery sleep and wake.
 
 ## Flashing decision and recovery
 
-Early on, the nice!nano UF2 volume (“Adafruit nRF UF2”) was not reliably accessible in Finder on this Mac, raw disk copying failed with “Operation not permitted”, and serial DFU with `adafruit-nrfutil` was used instead. Since 2026-09-26, copying the UF2 onto the bootloader volume has worked every time, and CI now produces only `sofle.uf2` (no DFU zip).
+Early on, the nice!nano UF2 volume (“Adafruit nRF UF2”) was not reliably accessible in Finder, raw disk copying failed with “Operation not permitted”, and serial DFU with `adafruit-nrfutil` was used instead. Since 2026-09-26, copying the UF2 onto the bootloader volume has worked every time, and CI now produces only `sofle.uf2` (no DFU zip).
 
 The repeatable workflow is:
 
