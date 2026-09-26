@@ -19,5 +19,12 @@
 #
 ---
 include:
+  # New Sofle (serial ...33F97): the name comes from config/sofle.conf.
   - board: nice_nano_v2
     shield: sofle_left
+  # Old Sofle (serial ...2707E): identical firmware, renamed so macOS can tell
+  # the two apart. Karabiner matches the USB IDs, not the name.
+  - board: nice_nano_v2
+    shield: sofle_left
+    cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"darksofle\"
+    artifact-name: darksofle

@@ -124,6 +124,9 @@
             bindings = <&mo>, <&kp>;
         };
 
+        // Bind as &hold_bt_clear BT_CLR_CMD 0: BT_CLR is itself two cells
+        // ("0 0"), and a third cell shifts every later binding in the layer.
+        //
         // Destructive actions are one-second holds on Raise keys that are
         // unused on Lower and Nav/Media too, so neither a doubled V+W nor
         // Lower muscle memory with Raise locked can reach them. Tapping does
@@ -231,7 +234,7 @@
 &bt BT_SEL 0  &bt BT_SEL 1       &kp F19        &none              &none              &none                                        &trans     &trans    &trans    &trans     &trans   &trans
 &kp F13       &kp F18            &none          &none              &kp F17            &none                                        &kp PG_UP  &trans    &kp UP    &trans     &kp N0   &trans
 &kp F16       &hold_bootloader 0 0  &kp F14        &none              &none              &none                                        &kp PG_DN  &kp LEFT  &kp DOWN  &kp RIGHT  &kp DEL  &kp BSPC
-&none         &none              &none          &hold_bt_clear BT_CLR 0  &kp F15            &ext_power EP_ON   &kp ESC           &trans  &trans     &trans    &trans    &trans     &trans   &trans
+&none         &none              &none          &hold_bt_clear BT_CLR_CMD 0  &kp F15            &ext_power EP_ON   &kp ESC           &trans  &trans     &trans    &trans    &trans     &trans   &trans
                                  &tog RAISE    &mt LEFT_ALT SLASH  &mt LEFT_CONTROL ESC  &mt LEFT_COMMAND COMMA  &mt LEFT_SHIFT SPACE    &trans  &trans     &trans    &trans    &trans
             >;
 

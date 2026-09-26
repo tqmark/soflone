@@ -40,6 +40,12 @@ def validate(source):
                 f"{name}: layer index changed")
     for name, bindings in layers.items():
         require(len(bindings) == 60, f"{name}: expected 60 matrix bindings")
+        # BT_CLR and BT_CLR_ALL expand to two cells, so only &bt, which takes
+        # exactly two, may use them. Anywhere else the extra cell shifts every
+        # later binding and the build fails far from the cause.
+        for binding in bindings:
+            require(not re.search(r"\bBT_CLR(_ALL)?\b", binding) or binding.startswith("&bt "),
+                    f"{name}: {binding}: use BT_CLR_CMD outside &bt")
 
     base = {key: f"&kp {key}" for key in POSITIONS if len(key) == 1}
     base.update(THUMBS)
@@ -64,7 +70,7 @@ def validate(source):
         "Q": "&bt BT_SEL 0", "P": "&bt BT_SEL 1", "B": "&kp F13", "T": "&kp F14",
         "N": "&kp F15", "C": "&kp F16", "S": "&kp F17", "F": "&kp F19", "Y": "&kp F18",
         "I": "&ext_power EP_ON", "K": "&kp ESC", "Z": "&tog RAISE",
-        "D": "&hold_bootloader 0 0", "W": "&hold_bt_clear BT_CLR 0",
+        "D": "&hold_bootloader 0 0", "W": "&hold_bt_clear BT_CLR_CMD 0",
     })
 
     nav_media = dict(THUMBS)
