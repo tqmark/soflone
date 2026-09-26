@@ -19,9 +19,9 @@
 #
 ---
 include:
-  # Both Sofles (serials ...33F97 and ...2707E) flash this one file. USB and
-  # Bluetooth both use the name from config/sofle.conf, SofleL-FlatMT; each
-  # keyboard still has its own Bluetooth address and pairings. The explicit
+  # Every Sofle flashes this one file. USB and Bluetooth both use the name
+  # from config/sofle.conf, SofleL-FlatMT; each keyboard still has its own
+  # Bluetooth address and pairings. The explicit
   # artifact name replaces the automatic sofle_left-nice_nano__zmk-zmk.
   - board: nice_nano//zmk
     shield: sofle_left
