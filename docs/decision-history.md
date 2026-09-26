@@ -53,7 +53,7 @@ Serial transfer and USB reboot were verified separately for both keyboards:
 - The two keyboards no longer run the same firmware: the old Sofle is on `e56630b` (Zephyr 4.1), the new Sofle (`33F97`) is still on `b246979` (Zephyr 3.5). Their bootloader gestures therefore differ. Physical typing/comfort testing remains separate from transfer verification.
 - Lower+E Backspace is merged into main and flashed to both Sofles. Comma remains on the Base comma/Command thumb.
 - The native/Sofle Karabiner handlers and browser helper are installed on this Mac. The user confirmed the shortcut worked after enabling System Events Automation permission for the current `Karabiner-Console-User-Server` entry; the separately listed lowercase entry was already enabled but did not authorize the running app. Full-brief mode was not separately confirmed.
-- **The bootloader gesture differs per keyboard.** Old Sofle (`2707E`, on `e56630b`): hold K for Raise, then hold D for one second. On Zephyr 4.1 this uses a new boot-mode mechanism and has not yet been tested since the flash; fall back to the reset button if it fails. New Sofle (`33F97`, on `b246979`): hold K for Raise, then press X+G together. Use the gesture for the firmware actually on that board.
+- **The bootloader gesture differs per keyboard.** Old Sofle (`2707E`, on `e56630b`): hold K for Raise, then hold D for one second. On Zephyr 4.1 this uses a new boot-mode mechanism; the user confirmed it enters the bootloader on `e56630b`. New Sofle (`33F97`, on `b246979`): hold K for Raise, then press X+G together. Use the gesture for the firmware actually on that board.
 - Hardware fallback: double-tap the controller reset button.
 
 ## Current saved keymap
@@ -400,19 +400,19 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 10. **Browser brief**: native rules and the helper are installed, and both Sofles have the K+Y firmware bridge. The user confirmed the shortcut worked after correcting the current Karabiner app's System Events Automation permission. Full-brief mode and operation on another Mac remain separate tests.
 11. **Faster Navigation/Media (flashed to the old Sofle only)**: verify Y-initial words and fast Y rolls never trigger arrows, volume or Backspace (watch `you`/`your` at the start of a line), and that the 150 ms idle rule is not annoying when reaching for arrows right after typing. If it is, lower it rather than restoring the dwell.
 12. **Modifier toggles**: verify Cmd+click and Shift+click with the trackpad, that a single Y+C or Y+S does nothing, and that a forgotten toggle is noticed quickly.
-13. **Zephyr 4.1 firmware (flashed to the old Sofle only)**: the OLED layer name without icon is confirmed. Still run the full regression test. In particular check the Raise+D bootloader hold (it uses a new boot-mode mechanism), hold-tap timing, battery sleep and wake, and the OLED. Flash one keyboard first and keep the other on Zephyr 3.5 as a fallback.
+13. **Zephyr 4.1 firmware (flashed to the old Sofle only)**: the OLED layer name without icon and the Raise+D bootloader hold are confirmed. Still run the full regression test, in particular hold-tap timing, battery sleep and wake, and the OLED. Flash one keyboard first and keep the other on Zephyr 3.5 as a fallback.
 
 ## Flashing decision and recovery
 
-The nice!nano UF2 volume appeared as “Adafruit nRF UF2” but was not reliably accessible in Finder on this Mac. Raw disk copying failed with macOS “Operation not permitted.” The successful route was serial DFU from Ghostty using `adafruit-nrfutil` and the current `/dev/cu.usbmodem…` port.
+Early on, the nice!nano UF2 volume (“Adafruit nRF UF2”) was not reliably accessible in Finder on this Mac, raw disk copying failed with “Operation not permitted”, and serial DFU with `adafruit-nrfutil` was used instead. Since 2026-09-26, copying the UF2 onto the bootloader volume has worked every time, and CI now produces only `sofle.uf2` (no DFU zip).
 
 The repeatable workflow is:
 
-1. Download the left-side firmware artifact from the successful GitHub Actions build.
-2. Enter the bootloader using the combo that belongs to the firmware already on the board, or double-tap reset.
-3. Identify the current `usbmodem` serial port; its number can change.
-4. Run serial DFU with the matching DFU zip, port, and 115200 baud.
-5. Confirm the board leaves the `nice!nano` bootloader and reappears as `Sofle` before testing keys.
+1. Download the `firmware` artifact from the successful GitHub Actions build, and check its SHA-256 against the artifact digest.
+2. Verify the UF2 before flashing: UF2 magic and block sequence, family `0xADA52840`, load address `0x26000`.
+3. Enter the bootloader with the gesture that belongs to the firmware already on the board (see “Saved versus flashed”), or double-tap reset.
+4. Copy `sofle.uf2` onto the bootloader volume. Serial DFU remains the fallback if the volume misbehaves, but it needs a DFU zip that CI no longer builds.
+5. Confirm the board leaves the bootloader and reappears as `SofleL-FlatMT` with its own serial before testing keys.
 
 Never copy a personal SSH private key into this repository or into firmware artifacts. Git publication uses the existing local SSH configuration; firmware flashing does not require Git credentials.
 
