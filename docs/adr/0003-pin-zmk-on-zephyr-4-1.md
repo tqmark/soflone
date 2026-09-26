@@ -16,4 +16,4 @@ A source comparison against the previous pin `abb64ba` found no change in the ke
 
 ## Consequences
 
-`config/west.yml` and the reusable-workflow ref in `.github/workflows/build.yml` must name the same commit, since the workflow chooses the build image. The single build has an explicit artifact name, `sofle`, instead of the automatic `sofle_left-nice_nano__zmk-zmk`. The Raise+D bootloader hold must be tested on the keyboard after the first flash, with the reset-button double tap as the fallback.
+`config/west.yml` and the reusable-workflow ref in `.github/workflows/build.yml` must name the same commit, since the workflow chooses the build image. The single build has an explicit artifact name, `sofle`, instead of the automatic `sofle_left-nice_nano__zmk-zmk`. The custom OLED status screen (`src/status_screen.c`) uses ZMK's display API and widgets, so it must build and render after any ZMK bump. The Raise+D bootloader hold must be tested on the keyboard after the first flash, with the reset-button double tap as the fallback.

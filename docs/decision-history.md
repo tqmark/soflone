@@ -22,7 +22,7 @@ This is the durable record of the decisions made while adapting the Sofle and th
 - Shield: `sofle_left`
 - Saved ZMK revision: `9ebbeff0a8b69a42f14aec022cdf16c7a107b9e0` (Zephyr 4.1, saved on branch `zmk-zephyr-4.1`, not flashed). Both keyboards were built on `abb64ba316c29caddc49727ca2cac2f0ed5970c7` (Zephyr 3.5).
 - Build matrix: left shield only; the earlier right-shield build was removed
-- OLED: enabled; the layer name uses the light UNSCII 8 font (saved, not flashed), the top-row icons ZMK's default Montserrat 16
+- OLED: enabled. Saved, not flashed: a custom status screen (`src/status_screen.c`, loaded through `zephyr/module.yml` and `CMakeLists.txt`) with ZMK's built-in layout, but the layer name is plain UNSCII 8 text without the keyboard icon. The top-row icons are ZMK's own widgets in Montserrat 16.
 - RGB and encoders: disabled
 - Bluetooth profiles: only ZMK profiles 0 and 1 are exposed (previously labeled BT1/BT2)
 - Baseline before the flattened-modifier safety change: `362f3bff9ba0c4503625a8daa77b474c61dfec60`
@@ -364,6 +364,7 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 - Per-keyboard names were briefly `darksofle`/`lightsofle`. A byte comparison of the two images showed they differed only in the name string and the one-byte shift it causes. ZMK compiles the Bluetooth name into the firmware, so different names require different files. The user chose one file for both keyboards instead: a single `sofle` artifact, both named `SofleL-FlatMT`. This also replaces the automatic `sofle_left-nice_nano__zmk-zmk` file name.
 - Saved on a branch, not flashed. The old Sofle stays on `a6ecdd8` and the new Sofle on `b246979`, both on Zephyr 3.5, until the user flashes the upgrade.
 - The user found the OLED layer name too bold and wanted only its first letter capitalised. The layer name font changed from Montserrat 12 to UNSCII 8 (`CONFIG_ZMK_LV_FONT_DEFAULT_SMALL_UNSCII_8`), whose strokes are one pixel wide. The names are now `Default`, `Lower`, `Raise` and `Nav/media`. The top-row icons stay in Montserrat 16, because the built-in status screen draws them from that font and UNSCII has none of them. A bold or custom font would need a custom status screen and was not pursued.
+- The user then asked to remove the keyboard icon in front of the layer name. ZMK hard-codes it in its layer widget, and UNSCII 8 has no glyph for it, so it would have drawn as a placeholder box. The repository now provides its own status screen: the same layout and ZMK's own battery and output widgets, with a plain-text layer name. The settings the built-in screen used to switch on (icon widgets, mono theme, Montserrat 16 default font, 4096-byte LVGL pool) are restated in `config/sofle.conf`. This is the repository's first C code; a ZMK upgrade must check it still builds against the display API.
 
 ## Decisions deliberately rejected or superseded
 
