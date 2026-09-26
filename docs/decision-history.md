@@ -18,17 +18,13 @@ This is the durable record of the decisions made while adapting the Sofle and th
 
 - Keyboard: left half of a Sofle
 - Controller: nice!nano v2, built as `nice_nano//zmk` (named `nice_nano_v2` before the Zephyr 4.1 upgrade)
-- Firmware: ZMK
 - Shield: `sofle_left`
-- Saved ZMK revision: `9ebbeff0a8b69a42f14aec022cdf16c7a107b9e0` (Zephyr 4.1, on branch `zmk-zephyr-4.1`). The old Sofle (`2707E`) runs it; the new Sofle (`33F97`) still runs a build of `abb64ba316c29caddc49727ca2cac2f0ed5970c7` (Zephyr 3.5).
-- Build matrix: left shield only; the earlier right-shield build was removed
-- OLED: enabled. On the old Sofle only (flashed, icon removal confirmed by the user): a custom status screen (`src/status_screen.c`, loaded through `zephyr/module.yml` and `CMakeLists.txt`) with ZMK's built-in layout, but the layer name is plain UNSCII 8 text without the keyboard icon. The top-row icons are ZMK's own widgets in Montserrat 16.
+- ZMK: pinned to `9ebbeff0a8b69a42f14aec022cdf16c7a107b9e0` (Zephyr 4.1, [ADR 0003](adr/0003-pin-zmk-on-zephyr-4-1.md)); the reusable build workflow uses the same commit
+- Build: one `sofle` artifact (`sofle.uf2`), left shield only, for both keyboards (only the old Sofle runs it so far; see “Saved versus flashed”)
+- Name: `SofleL-FlatMT` over USB and Bluetooth on both keyboards. Each keeps its own Bluetooth address and pairings. macOS shows the name recorded at pairing (or set in Bluetooth settings), so the old Sofle may still be listed as `darksofle`.
+- OLED: enabled. Saved firmware uses the repository's own status screen (`src/status_screen.c`, loaded through `zephyr/module.yml` and `CMakeLists.txt`). It keeps ZMK's layout and battery/output icons (Montserrat 16) and shows the layer name as plain UNSCII 8 text without ZMK's keyboard icon: `Default`, `Lower`, `Raise`, `Nav/media`.
 - RGB and encoders: disabled
 - Bluetooth profiles: only ZMK profiles 0 and 1 are exposed (previously labeled BT1/BT2)
-- Baseline before the flattened-modifier safety change: `362f3bff9ba0c4503625a8daa77b474c61dfec60`
-- Last successful build before that safety change: [GitHub Actions run 34733958813](https://github.com/tqmark/sofli/actions/runs/34733958813)
-- Firmware name after the safety change: `SofleL-FlatMT`
-- One firmware for both keyboards: `build.yaml` builds a single `sofle` artifact, and both Sofles advertise `SofleL-FlatMT` over USB and Bluetooth. The old Sofle (`2707E`) runs it; the new Sofle (`33F97`) is still on `b246979`. Each keyboard keeps its own Bluetooth address and pairings. macOS keeps the name recorded when a keyboard was paired (or a name set in Bluetooth settings), so the old Sofle may still be listed as `darksofle` until it is paired again or renamed there.
 
 The full Sofle matrix still appears in `config/sofle.keymap`; the right-side entries are inactive placeholders required by the shield. The layouts below show only the physical left half.
 
@@ -38,23 +34,23 @@ The full Sofle matrix still appears in `config/sofle.keymap`; the right-side ent
 - Deep sleep is enabled after 15 minutes of inactivity on battery (`CONFIG_ZMK_SLEEP=y`, `CONFIG_ZMK_IDLE_SLEEP_TIMEOUT=900000`).
 - ZMK's activity handler (unchanged by the Zephyr 4.1 upgrade) prevents deep sleep while USB power is present, including USB charging while using Bluetooth.
 - On battery, deep sleep disconnects Bluetooth; a matrix key press wakes the keyboard and it reconnects. The wake press may not be typed, and a reboot returns to Base. Saved Bluetooth pairings are retained.
-- These settings take effect separately on each keyboard after it is flashed. Real battery sleep/wake behavior still needs a physical test.
+- Both keyboards have these settings. Real battery sleep/wake behavior still needs a physical test.
 
 ### Saved versus flashed
 
 “Saved” means present in Git. “Confirmed flashed” means explicitly verified on the physical board. These are not interchangeable.
 
-Serial transfer and USB reboot were verified separately for both keyboards:
+What each keyboard runs, as last confirmed. Earlier flashes are in the chronology.
 
-- Old Sofle (serial ending `2707E`): `b246979`, flashed on 2026-09-19 at 13:37 Asia/Ho_Chi_Minh. Serial DFU reported `Device programmed.` and the same serial returned as `SofleL-FlatMT` (USB `1d50:615e`). This replaces `e9f4de5`, changing Lower+E from comma to Backspace while retaining Lower+G Backspace, Raise+Y browser brief, Navigation/Media, all timing, and 15-minute battery sleep.
-- New Sofle (serial ending `33F97`): `b246979`, flashed on 2026-09-19 at 13:39 Asia/Ho_Chi_Minh. Serial DFU reported `Device programmed.` and the same serial returned as `SofleL-FlatMT` (USB `1d50:615e`). This replaces `e9f4de5`, adding Lower+E Backspace while retaining all other bindings and timing.
-- Old Sofle (serial ending `2707E`): `a6ecdd8`, flashed on 2026-09-26, confirmed at 10:27 Asia/Ho_Chi_Minh, by copying `darksofle.uf2` onto the bootloader volume. It returned as `SofleL-FlatMT` with the same serial (USB `1d50:615e`). This is the first keyboard carrying the hold-based recovery, the faster Navigation/Media, the double-tap modifier toggles and the `darksofle` Bluetooth name. The earlier same-day flash of `2fb9e4d` is superseded.
-- Old Sofle (serial `7DF33F115102707E`): `e56630b`, the Zephyr 4.1 upgrade, flashed on 2026-09-26 and confirmed at 12:29 Asia/Ho_Chi_Minh. The user copied `sofle.uf2` from build [36220622974](https://github.com/tqmark/soflone/actions/runs/36220622974) onto the bootloader volume. Before flashing, the downloaded artifact matched the CI SHA-256 (`265f4aac…0555`), and the UF2 passed magic, sequence, family `0xADA52840` and load address `0x26000` checks. It contained the capitalised layer names and no keyboard-icon layer string. macOS reported `SofleL-FlatMT`, vendor `0x1d50`, with the same serial, and the user confirmed the OLED icon is gone. This supersedes the `a6ecdd8` flash above.
-- The two keyboards no longer run the same firmware: the old Sofle is on `e56630b` (Zephyr 4.1), the new Sofle (`33F97`) is still on `b246979` (Zephyr 3.5). Their bootloader gestures therefore differ. Physical typing/comfort testing remains separate from transfer verification.
-- Lower+E Backspace is merged into main and flashed to both Sofles. Comma remains on the Base comma/Command thumb.
-- The native/Sofle Karabiner handlers and browser helper are installed on this Mac. The user confirmed the shortcut worked after enabling System Events Automation permission for the current `Karabiner-Console-User-Server` entry; the separately listed lowercase entry was already enabled but did not authorize the running app. Full-brief mode was not separately confirmed.
-- **The bootloader gesture differs per keyboard.** Old Sofle (`2707E`, on `e56630b`): hold K for Raise, then hold D for one second. On Zephyr 4.1 this uses a new boot-mode mechanism; the user confirmed it enters the bootloader on `e56630b`. New Sofle (`33F97`, on `b246979`): hold K for Raise, then press X+G together. Use the gesture for the firmware actually on that board.
-- Hardware fallback: double-tap the controller reset button.
+| Keyboard | Serial | Firmware | ZMK | Confirmed | Bootloader gesture |
+|---|---|---|---|---|---|
+| Old Sofle | `7DF33F115102707E` | `e56630b` | Zephyr 4.1 | 2026-09-26 12:29 | Hold K for Raise, then hold D for one second (confirmed working) |
+| New Sofle | `277D64B1BE733F97` | `b246979` | Zephyr 3.5 | 2026-09-19 13:39 | Hold K for Raise, then press X+G together |
+
+- `e56630b` has the same keymap and OLED as `main`; later commits changed only documentation. `b246979` predates the hold-based recovery, the faster Navigation/Media, the modifier toggles and the OLED changes, and is kept as the Zephyr 3.5 fallback until the upgrade has been lived with.
+- To bring the new Sofle up to date, flash `sofle.uf2` from the latest `main` build, entering the bootloader with its X+G gesture that one last time.
+- Hardware fallback on either keyboard: double-tap the controller reset button.
+- Physical typing and comfort testing is separate from transfer verification.
 
 ## Current saved keymap
 
@@ -78,7 +74,7 @@ X/Lower  G            V  W  N  I  K/Raise
 - Tap the comma thumb for comma; hold it for Left Command.
 - Tap Space for Space; hold it for Left Shift.
 - Enter is X+Space through Lower. Period is X+comma through Lower; the old duplicate Lower+I period is now right bracket (`]`).
-- Hold-tap timing is 200 ms. No tap dances remain on any layer.
+- Hold-tap timing is 200 ms. The only tap dances are the Navigation/Media C/S modifier toggles, which wrap `&none`/`&kt` and never a hold-tap.
 - X and K use hold-preferred layer-taps so a following key selects the layer immediately instead of waiting 200 ms.
 
 ### Lower
@@ -171,6 +167,7 @@ The complete personal configuration files are intentionally not copied into this
 
 Live configuration: `~/.config/karabiner/karabiner.json`; launcher script: `~/.config/karabiner/open_apps.sh`.
 
+- The native/Sofle browser-brief handlers and helper are installed on this Mac. The shortcut worked once System Events Automation permission was enabled for the current `Karabiner-Console-User-Server` entry; the separately listed lowercase entry was already enabled but did not authorize the running app. Full-brief mode was not separately confirmed.
 - On the native Mac keyboard, Caps Lock taps Escape and holds Control with a 200 ms alone timeout.
 - Right Option maps to Left Control.
 - Native Space+B/T/N/C/S/F simultaneous chords open Browser, terminal, Notes, the Slack/Telegram toggle, Settings, and Finder. Space+M remains normal typing. The chords use a 30 ms window and exclude only the Sofle device (VID `0x1d50`, PID `0x615e`); they work in terminals too. When Vivaldi is frontmost, Space+B searches its open tabs instead of launching.
@@ -287,6 +284,7 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 - A source-level audit of the pinned ZMK revision showed that a tap dance creates its nested mod-tap only when the dance resolves. The interrupting key has already passed the hold-tap listener, so fast Shift+letter could remain lowercase and a following hold-tap could be lost.
 - Space/Shift, comma/Command, and Raise Escape/Control became direct `&mt` bindings. Double-tap period, Enter, and Raise-to-Base were removed from those positions.
 - Enter remains readily available as X+Space. Period is X+comma, matching the preferred hold-then-tap gesture; Lower+I remains a duplicate period for now. Z remains the Raise recovery key.
+- The baseline before this change was `362f3bff9ba0c4503625a8daa77b474c61dfec60`; its last successful build was [run 34733958813](https://github.com/tqmark/sofli/actions/runs/34733958813) in the repository's former name.
 - The firmware name became `SofleL-FlatMT`, and CI gained a structural check that rejects any future custom behavior wrapping `&mt`.
 - The final K tap dance on Raise was also removed. K now sends immediate Escape, Z remains the exit, and CI rejects every tap dance on every layer.
 - The shared Karabiner chat launcher became a Slack/Telegram toggle based on the frontmost app. A separate direct-Telegram action was rejected: C is the only chat shortcut, K+X is unused, and native Space+M remains normal typing.
@@ -361,11 +359,12 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 
 - The user asked for the latest ZMK with the same setup. ZMK is pinned to main at `9ebbeff` (Zephyr v4.1.0+zmk-fixes, Hardware Model V2) instead of `abb64ba`, and the reusable build workflow moves to the same commit. No ZMK release carries Zephyr 4.1 yet. See [ADR 0003](adr/0003-pin-zmk-on-zephyr-4-1.md).
 - The board is renamed from `nice_nano_v2` to `nice_nano//zmk` (default revision 2.0.0, the same hardware). The `sofle_left` shield, keymap, `sofle.conf` options and every binding are unchanged. The unused, deprecated `label` was removed from `lower_bslash_base`.
-- A source diff between the two ZMK commits found no change to hold-tap, tap dance, combos, macros, sticky layer, key toggle, `&tog` layer locking, or the USB-powered sleep exception. `&bootloader` now enters the UF2 bootloader through Zephyr's retention boot mode on the `zmk` board variant, so Raise+D needs a physical test after flashing.
+- A source diff between the two ZMK commits found no change to hold-tap, tap dance, combos, macros, sticky layer, key toggle, `&tog` layer locking, or the USB-powered sleep exception. `&bootloader` now enters the UF2 bootloader through Zephyr's retention boot mode on the `zmk` board variant, so Raise+D needed a physical test after flashing (confirmed working, below).
 - Per-keyboard names were briefly `darksofle`/`lightsofle`. A byte comparison of the two images showed they differed only in the name string and the one-byte shift it causes. ZMK compiles the Bluetooth name into the firmware, so different names require different files. The user chose one file for both keyboards instead: a single `sofle` artifact, both named `SofleL-FlatMT`. This also replaces the automatic `sofle_left-nice_nano__zmk-zmk` file name.
-- Initially saved on a branch only. The branch as of `e56630b` (with the OLED changes below) was then flashed to the old Sofle; the new Sofle stays on `b246979` as the Zephyr 3.5 fallback.
 - The user found the OLED layer name too bold and wanted only its first letter capitalised. The layer name font changed from Montserrat 12 to UNSCII 8 (`CONFIG_ZMK_LV_FONT_DEFAULT_SMALL_UNSCII_8`), whose strokes are one pixel wide. The names are now `Default`, `Lower`, `Raise` and `Nav/media`. The top-row icons stay in Montserrat 16, because the built-in status screen draws them from that font and UNSCII has none of them. A bold or custom font would need a custom status screen and was not pursued.
 - The user then asked to remove the keyboard icon in front of the layer name. ZMK hard-codes it in its layer widget, and UNSCII 8 has no glyph for it, so it would have drawn as a placeholder box. The repository now provides its own status screen: the same layout and ZMK's own battery and output widgets, with a plain-text layer name. The settings the built-in screen used to switch on (icon widgets, mono theme, Montserrat 16 default font, 4096-byte LVGL pool) are restated in `config/sofle.conf`. This is the repository's first C code; a ZMK upgrade must check it still builds against the display API.
+- Flashed to the old Sofle (`7DF33F115102707E`) as `e56630b`, confirmed at 12:29 Asia/Ho_Chi_Minh. The user copied `sofle.uf2` from build [36220622974](https://github.com/tqmark/soflone/actions/runs/36220622974) onto the bootloader volume. Before flashing, the downloaded artifact matched the CI SHA-256 (`265f4aac…0555`), and the UF2 passed magic, sequence, family `0xADA52840` and load address `0x26000` checks. It contained the capitalised layer names and no keyboard-icon layer string. macOS reported `SofleL-FlatMT`, vendor `0x1d50`, with the same serial. The user confirmed the OLED icon is gone and that the Raise+D hold enters the bootloader on the new boot-mode mechanism. The new Sofle stays on `b246979` as the Zephyr 3.5 fallback.
+- The branch was then fast-forwarded into `main` (`f39c8b6`, build [36221133626](https://github.com/tqmark/soflone/actions/runs/36221133626) passed). The work was developed on a branch because the pin had previously been a deliberate constraint; nothing was flashed from the branch that `main` does not contain.
 
 ## Decisions deliberately rejected or superseded
 
@@ -392,15 +391,15 @@ The firmware preserves quick Escape, Control, Space, and movement access because
 2. **Firmware identity**: the old Sofle (`2707E`) is verified on `e56630b` (Zephyr 4.1); the new Sofle (`33F97`) is still on `b246979`. Physical typing tests remain separate from installation verification. Do not infer future installations merely from a successful CI build or the presence of a UF2 file.
 3. **Redesign ergonomics**: confirm pinky-held Y with H/J/K/L, P/F/M volume, and thumb-modified movement. Also test Lower Tab plus Shift, the Ctrl+A workflow, and the new X-then-G deletion gesture.
 4. **Arbitrary app switching**: Cmd+Tab is disabled, and named launchers do not select every running application. A dependable one-handed general switcher has not been chosen.
-5. **Deletion comfort**: Lower+E/G Backspace is flashed on both Sofles. Both X+E and X+G need comparative reach/repeated-deletion testing. Y+O is retained, now without the 200 ms dwell in the saved firmware; L+J stays removed and Raise has no dedicated Backspace.
+5. **Deletion comfort**: Lower+E/G Backspace is flashed on both Sofles. Both X+E and X+G need comparative reach/repeated-deletion testing. Y+O is retained, without the 200 ms dwell on the old Sofle (the new Sofle still has the dwell); L+J stays removed and Raise has no dedicated Backspace.
 6. **Combo accidents**: Q+P and B+Y need normal-speed typing tests for false activation. Verify L/J together now type letters instead of deleting.
 7. **USB wake repeat**: an older report said the first key after about 30 seconds over USB could repeat. Cause and current status are unknown.
-8. **OLED**: it was blank during setup and recovered after settings/power experiments. Raise+I exists as a safe power-on path; continued reliability is unconfirmed.
+8. **OLED**: it was blank during setup and recovered after settings/power experiments. Raise+I exists as a safe power-on path; continued reliability is unconfirmed. On the old Sofle the custom status screen is confirmed to show the plain layer name; watch that the name follows layer changes and the icons update.
 9. **Physical ergonomics**: finger assignments, reach, fatigue, accidental locks, missing spaces, unexpected capitals, and multi-modifier comfort need observation rather than assumption.
 10. **Browser brief**: native rules and the helper are installed, and both Sofles have the K+Y firmware bridge. The user confirmed the shortcut worked after correcting the current Karabiner app's System Events Automation permission. Full-brief mode and operation on another Mac remain separate tests.
 11. **Faster Navigation/Media (flashed to the old Sofle only)**: verify Y-initial words and fast Y rolls never trigger arrows, volume or Backspace (watch `you`/`your` at the start of a line), and that the 150 ms idle rule is not annoying when reaching for arrows right after typing. If it is, lower it rather than restoring the dwell.
-12. **Modifier toggles**: verify Cmd+click and Shift+click with the trackpad, that a single Y+C or Y+S does nothing, and that a forgotten toggle is noticed quickly.
-13. **Zephyr 4.1 firmware (flashed to the old Sofle only)**: the OLED layer name without icon and the Raise+D bootloader hold are confirmed. Still run the full regression test, in particular hold-tap timing, battery sleep and wake, and the OLED. Flash one keyboard first and keep the other on Zephyr 3.5 as a fallback.
+12. **Modifier toggles (old Sofle only)**: verify Cmd+click and Shift+click with the trackpad, that a single Y+C or Y+S does nothing, and that a forgotten toggle is noticed quickly.
+13. **Zephyr 4.1 firmware (old Sofle only)**: the OLED layer name without icon and the Raise+D bootloader hold are confirmed. Still run the full regression test, in particular hold-tap timing and battery sleep and wake. Once it has been lived with, flash the new Sofle from `main`; until then it is the Zephyr 3.5 fallback.
 
 ## Flashing decision and recovery
 
@@ -410,7 +409,7 @@ The repeatable workflow is:
 
 1. Download the `firmware` artifact from the successful GitHub Actions build, and check its SHA-256 against the artifact digest.
 2. Verify the UF2 before flashing: UF2 magic and block sequence, family `0xADA52840`, load address `0x26000`.
-3. Enter the bootloader with the gesture that belongs to the firmware already on the board (see “Saved versus flashed”), or double-tap reset.
+3. Enter the bootloader with the gesture that belongs to the firmware already on the board (see the table under “Saved versus flashed”), or double-tap reset.
 4. Copy `sofle.uf2` onto the bootloader volume. Serial DFU remains the fallback if the volume misbehaves, but it needs a DFU zip that CI no longer builds.
 5. Confirm the board leaves the bootloader and reappears as `SofleL-FlatMT` with its own serial before testing keys.
 
@@ -428,7 +427,7 @@ Never copy a personal SSH private key into this repository or into firmware arti
 8. Hold X first, tap E or G: expect Backspace, with no leaked `x`, `e`, or `g`. Keep X held and hold E/G to test repeat. Lock Lower, then tap E/G: expect Backspace; unlock and verify E/G type their Base letters. Hold Y and tap O: expect Backspace; roll Y then O: expect `yo`. Base L/J together should type letters, never Backspace. Lower+D/W and Raise+J/A should do nothing. Raise+X+G must do nothing. Tap Raise+D and Raise+W: nothing. Only hold Raise+D when ready to enter the bootloader.
 9. Type Y rolls, including `yo`, `yp`, `yf`, `ym`, `yh`, `yj`, `yk`, `yl`, `yc` and `ys`, both mid-word and at the start of a line after a pause, plus `you`, `yes`, `yet`, `year` and `days`: expect letters, never commands or toggles. Then hold Y and test P/F/M for Volume Down/Up/Mute.
 10. Test Q+P, B+Y, and V+W deliberately and during fast ordinary typing. Press V+W twice quickly: expect one-shot Raise only, with the Bluetooth connection intact.
-11. Hold K and test Q/P for BT0/BT1 selection (the same saved profiles, now on Lower's 1/2 positions). V/W alone should do nothing. Test USB wake, OLED power-on, and all six app bridge keys.
+11. Hold K and test Q/P for BT0/BT1 selection (the same saved profiles, now on Lower's 1/2 positions). V/W alone should do nothing. Test USB wake, OLED power-on, and all six app bridge keys. Switch through the layers and check the OLED shows `Default`/`Lower`/`Raise`/`Nav/media` with no icon before the name.
 12. Test Bluetooth clear (hold Raise+W one second) and bootloader (hold Raise+D one second) only when prepared for their destructive or disruptive effects.
 13. On battery, leave the keyboard untouched for just over 15 minutes, then press a matrix key and confirm Bluetooth reconnects and normal typing resumes. Separately confirm USB-powered operation stays awake past the same timeout.
 14. Hold X and test H for Tab, Shift thumb+H for Shift+Tab, and V for backslash (Shift+V gives pipe). Test A then Q/P/F at a clean Ghostty shell prompt for leader 1/2/3; do not invoke those layouts inside Neovim. Verify N/I send `[`/`]` (Shift gives `{`/`}`), E/G send Backspace, K sends backtick, and D/W send nothing. Release X to type comma with the Base Command thumb; add Shift for `<`.
